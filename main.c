@@ -17,7 +17,7 @@ int main()
     apt* apt2 = CreApt(temp);
     apt2->code = 2;
     n2 = CreateLnode(apt2);
-    n1->next = n2 ;  /* blablallalaa*/
+    n1->next = n2 ;
 
 
     n2->prev = n1 ;
@@ -34,13 +34,12 @@ int main()
     apt4->code = 4;
     n4 = CreateLnode(apt4);
     n3->next = n4 ;
-    n4->prev = n3 ;  /* ddsdsadsa  -  snir guet sss a  */
+    n4->prev = n3 ;
 
     lst.tail = n4;
 //    for(curr = lst.head ; curr != NULL ; curr=  curr->next )
 //    {
 //        printf("%d\n",curr->apartment->price);
-/*bla bla bla */
 //    }
     temp ="find-apt -MinNumRooms 3 -MaxNumRooms 5 -MaxPrice 1750000 -s";
     find(&lst,temp);

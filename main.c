@@ -34,7 +34,7 @@ int main()
     apt4->code = 4;
     n4 = CreateLnode(apt4);
     n3->next = n4 ;
-    n4->prev = n3 ;  /* ddsdsadsa  -  snir */
+    n4->prev = n3 ;  /* ddsdsadsa  -  snir guet sss a  */
 
     lst.tail = n4;
 //    for(curr = lst.head ; curr != NULL ; curr=  curr->next )

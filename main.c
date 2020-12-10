@@ -18,6 +18,8 @@ int main()
     apt2->code = 2;
     n2 = CreateLnode(apt2);
     n1->next = n2 ;
+
+
     n2->prev = n1 ;
 
     temp = "add-apt \"Ben Gurion 25 Herzliya\" 2200000 5 01 08 20";

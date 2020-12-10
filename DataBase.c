@@ -209,7 +209,7 @@ void* check_malloc (int num_of_bytes)
     if(new_arr == NULL)
     {
         printf("ERROR\n");
-        exit(-1);
+        exit(MEM_ALLOC_ERR);
     }
     return new_arr;
 }

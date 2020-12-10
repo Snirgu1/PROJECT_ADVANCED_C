@@ -6,8 +6,8 @@
 void find(List* apartment, char* line);
 
 /* ===== ADD FUNCTIONS =====*/
-apt* CreApt(char* line); /* TEST ONLY !!!! _ NOT EFFICIENT */
-LNode* CreateLnode(apt* apt);
+Apt* CreApt(char* line); /* TEST ONLY !!!! _ NOT EFFICIENT */
+LNode* CreateLnode(Apt* apt);
 
 /* ===== BUY FUNCTIONS =====*/
 

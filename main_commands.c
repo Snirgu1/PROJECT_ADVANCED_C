@@ -56,7 +56,7 @@
          token = strtok(NULL,delim);
      }
  }
- void printApt(apt* apt)
+ void printApt(Apt* apt)
 {
     printf("--- apt code --- : %d\n",apt->code);
     printf("address : %s\n",apt->address);
@@ -68,7 +68,7 @@
 
 /* ========================================== ADD AND BUY FUNCTIONS ==========================================*/
 
-LNode* CreateLnode(apt* apt)
+LNode* CreateLnode(Apt* apt)
 {
     LNode* res = (LNode*)malloc(sizeof(LNode));
     if(!res)
@@ -80,9 +80,9 @@ LNode* CreateLnode(apt* apt)
 }
 
 /* TEST ONLY _ NOT EFFICIENT !!! */
-apt* CreApt(char* line)
+Apt* CreApt(char* line)
 {
-    apt* res = (apt*)malloc(sizeof(apt));
+    Apt* res = (Apt*)malloc(sizeof(Apt));
     int i = 9, wi = 0 ;
     char ch = line[i++];
     char* address = (char*)malloc(sizeof(char)*100);
@@ -113,7 +113,6 @@ apt* CreApt(char* line)
     ch = line[i++];
     temp[1] = ch;
     res->num_of_rooms = atoi(temp);
-
     /* get day */
     ch = line[i++] ;
     temp[0] = ch ;

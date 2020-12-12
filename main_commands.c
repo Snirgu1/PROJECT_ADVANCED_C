@@ -1,5 +1,21 @@
 #include "main_commands.h"
 
+ void checkCommand(char* line, List* lstByCode, List* lstByPrice)
+ {
+    if(line[0] == 'a')
+        addApt(line, lstByCode, lstByPrice);
+    else if(line[0] == 'f')
+        find(lstByCode, line); // need to check which list to send
+        /*
+    else if(line[0] == 'b')
+        buyApt(line);
+    else if(line[0] == 'd')
+        deleteApt(line);
+    else
+        exitProg;
+         */
+ }
+
  /* ========================================== FIND AND DELETE FUNCTIONS ==========================================*/
 
  void find(List* apartment, char* line)
@@ -56,7 +72,7 @@
          token = strtok(NULL,delim);
      }
  }
- void printApt(apt* apt)
+ void printApt(Apt* apt)
 {
     printf("--- apt code --- : %d\n",apt->code);
     printf("address : %s\n",apt->address);
@@ -65,10 +81,9 @@
     printf("entry date is : %d/%d/%d \n\n",apt->day,apt->month,apt->year);
 }
 
-
 /* ========================================== ADD AND BUY FUNCTIONS ==========================================*/
-
-LNode* CreateLnode(apt* apt)
+/*
+LNode* CreateLnode(Apt* apt)
 {
     LNode* res = (LNode*)malloc(sizeof(LNode));
     if(!res)
@@ -78,11 +93,12 @@ LNode* CreateLnode(apt* apt)
     res->apartment = apt;
     return res;
 }
-
+*/
 /* TEST ONLY _ NOT EFFICIENT !!! */
-apt* CreApt(char* line)
+Apt* CreApt(char* line)
 {
-    apt* res = (apt*)malloc(sizeof(apt));
+    static int code = 1;
+    Apt* res = (Apt*)malloc(sizeof(Apt));
     int i = 9, wi = 0 ;
     char ch = line[i++];
     char* address = (char*)malloc(sizeof(char)*100);
@@ -113,7 +129,6 @@ apt* CreApt(char* line)
     ch = line[i++];
     temp[1] = ch;
     res->num_of_rooms = atoi(temp);
-
     /* get day */
     ch = line[i++] ;
     temp[0] = ch ;
@@ -135,5 +150,16 @@ apt* CreApt(char* line)
     temp[1] = ch;
     res->year= atoi(temp);
 
+    res->code = code;
+    code++;
+    res->Database_entry_date = 0;
+
     return res;
+}
+
+void addApt(char* line, List* lstByCode, List* lstByPrice)
+{
+    Apt *apt1 = CreApt(line);
+    AddToListByCode(lstByCode, apt1);
+    AddToListByPrice(lstByPrice, apt1);
 }

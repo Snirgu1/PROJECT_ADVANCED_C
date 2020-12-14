@@ -5,6 +5,8 @@
 
 void checkCommand(char* line, List* lstByCode, List* lstByPrice);
 
+void checkCommand(char* line, List* lstByCode, List* lstByPrice);
+
 /* ===== FIND FUNCTIONS =====*/
 void find(List* apartment, char* line);
 
@@ -14,6 +16,10 @@ LNode* CreateLnode(Apt* apt);
 
 void addApt(char* line, List* lstByCode, List* lstByPrice);
 =======
+
+void addApt(char* line, List* lstByCode, List* lstByPrice);
+=======
+
 
 
 /* ===== BUY FUNCTIONS =====*/

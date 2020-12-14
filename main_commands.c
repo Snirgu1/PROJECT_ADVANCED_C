@@ -1,11 +1,25 @@
 #include "main_commands.h"
 
+
+ void checkCommand(char* line, List* lstByCode, List* lstByPrice)
+=======
  void checkCommand(char* line, List* lstByCode, List* lstByPrice) // checking first letter of the line to decide which command
+
  {
     if(line[0] == 'a')
         addApt(line, lstByCode, lstByPrice);
     else if(line[0] == 'f')
         find(lstByCode, line); // need to check which list to send
+
+        /*
+    else if(line[0] == 'b')
+        buyApt(line);
+    else if(line[0] == 'd')
+        deleteApt(line);
+    else
+        exitProg;
+         */
+
     else if(line[0] == 'b')
         buyApt(line, lstByCode, lstByPrice);
     /*
@@ -16,6 +30,7 @@
     */
    // else
        // checkReconstraction(line, lstByCode, lstByPrice);
+
 
  }
 
@@ -76,12 +91,15 @@
      }
  }
 
+=======
+
 
 /* ========================================== ADD AND BUY FUNCTIONS ==========================================*/
 
 Apt* CreApt(char* line) /* TEST ONLY _ NOT EFFICIENT !!! */
 {
     static int code = 1;
+
 
  void printApt(Apt* apt)
 {
@@ -92,8 +110,11 @@ Apt* CreApt(char* line) /* TEST ONLY _ NOT EFFICIENT !!! */
     printf("entry date is : %d/%d/%d \n\n",apt->day,apt->month,apt->year);
 }
 
-
 /* ========================================== ADD AND BUY FUNCTIONS ==========================================*/
+
+/*
+
+
 
 LNode* CreateLnode(Apt* apt)
 {
@@ -105,10 +126,14 @@ LNode* CreateLnode(Apt* apt)
     res->apartment = apt;
     return res;
 }
-
+*/
 /* TEST ONLY _ NOT EFFICIENT !!! */
 Apt* CreApt(char* line)
 {
+
+    static int code = 1;
+=======
+
 
     Apt* res = (Apt*)malloc(sizeof(Apt));
     int i = 9, wi = 0 ;
@@ -170,6 +195,13 @@ Apt* CreApt(char* line)
     return res;
 }
 
+
+void addApt(char* line, List* lstByCode, List* lstByPrice)
+{
+    Apt *apt1 = CreApt(line);
+    AddToListByCode(lstByCode, apt1);
+    AddToListByPrice(lstByPrice, apt1);
+=======
 void addApt(char* line, List* lstByCode, List* lstByPrice) // adding apt to the lists
 {
     Apt *apt1 = CreApt(line);
@@ -191,4 +223,5 @@ int getCode(char *line)
     code = atoi(line+i);
 
     return code;
+
 }

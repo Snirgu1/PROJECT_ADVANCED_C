@@ -3,6 +3,7 @@
 //
 #include "DataBase.h"
 
+
 static int code = 0;
 // to follow the last apt code
 
@@ -14,6 +15,15 @@ Apt* AllocateApt(char* line)
 
     apt->code = code;
     code++;
+
+// to follow the last apt code
+
+Apt* AllocateApt(int code, char* address, int price, short int num_of_rooms, short int day, short int month, short int year, time_t Database_entry_date)
+{
+    Apt* apt;
+    apt = (Apt*)check_malloc(sizeof(apt));
+    apt->code = code;
+
     apt->address = address;
     apt->price = price;
     apt->num_of_rooms = num_of_rooms;
@@ -24,16 +34,34 @@ Apt* AllocateApt(char* line)
 
     return apt;
 }
+
  */
 
 LNode *AllocateLNode(Apt *apt)
 {
     LNode *node = (LNode*)check_malloc(sizeof(LNode));
+
+
+LNode *AllocateLNode(Apt *apt)
+{
+    LNode *node;
+    node = (LNode*)check_malloc(sizeof(LNode));
+
     node->apartment = apt;
     node->next = node->prev = NULL;
 
     return node;
 }
+
+
+List AllocateEmptyList()
+{
+    List list;
+
+    list.head = list.tail = NULL;
+    return list;
+}
+
 
 void InitializeList(List* list)
 {
@@ -67,11 +95,19 @@ void AddToInnerPlaceInList (LNode *prev, LNode *node)
     node->next->prev = node;
 }
 
+
 LNode* FindPlaceToInsertByPrice(List *list, Apt* apt)
 {
     LNode *curr = list->head, *prev = NULL;
 
     while (curr && (curr->apartment->price < apt->price))
+
+LNode* FindPlaceToInsertByX(List *list, Apt* apt)
+{
+    LNode *curr = list->head, *prev = NULL;
+
+    while (curr /* & (curr->X </=/> apt->X */)
+
     {
         prev = curr;
         curr = curr->next;
@@ -79,6 +115,7 @@ LNode* FindPlaceToInsertByPrice(List *list, Apt* apt)
 
     return prev;
 }
+
 
 LNode* FindPlaceToInsertByCode(List *list, Apt* apt)
 {
@@ -112,6 +149,8 @@ void AddToListByPrice (List *list, Apt* apt)
 }
 
 void AddToListByCode (List *list, Apt* apt)
+
+void AddToList (List *list, Apt* apt)
 {
     LNode *prev;
     LNode* node = AllocateLNode(apt);
@@ -119,7 +158,11 @@ void AddToListByCode (List *list, Apt* apt)
     if(list->head == NULL)
         AddToEmptyList(list, node);
     else{
+
         prev = FindPlaceToInsertByCode(list, apt);
+
+        prev = FindPlaceToInsertByX(list, apt);
+
         if(prev == NULL)
             AddToBeginningOfList(list, node);
         else if (prev == list->tail)
@@ -138,6 +181,7 @@ void DeleteFromInnerPlaceInList(LNode *prev)
     DeallocateListNode(node);
 }
 
+
 void DeleteFromInnerPlaceInPriceList(LNode *prev)
 {
     LNode *node = prev->next;
@@ -150,6 +194,10 @@ void DeleteFromInnerPlaceInPriceList(LNode *prev)
 void DeallocateListNode(LNode *node)
 {
     free(node->apartment->address);
+
+void DeallocateListNode(LNode *node)
+{
+
     free(node->apartment);
     free(node);
 }
@@ -169,6 +217,7 @@ void DeleteFromBeginningOfList(List *list)
     }
 }
 
+
 void DeleteFromBeginningOfPriceList(List *list)
 {
     list->head = list->head->next;
@@ -184,6 +233,7 @@ void DeleteFromBeginningOfPriceList(List *list)
     }
 }
 
+
 void DeleteFromEndOfList(List *list)
 {
     if(list->tail == list->head) //assume list is not empty
@@ -196,6 +246,7 @@ void DeleteFromEndOfList(List *list)
     DeallocateListNode(list->tail->next);
     list->tail->next = NULL;
 }
+
 
 void DeleteFromEndOfPriceList(List *list)
 {
@@ -221,10 +272,23 @@ void DeleteFromList (List *list, List *listByPrice, int code)
             prevC = FindPlaceToDeleteByCode(list, code);
             prevP = FindPlaceToDeleteByCode(listByPrice, code);
             if(prevC == list->tail)
+
+void DeleteFromList (List *list, Apt *apt)
+{
+    LNode *prev;
+
+    if(list->head == NULL)
+        fprintf(stderr, "List is empty, cannot delete ; \n");
+        else
+        {
+            prev = FindPlaceToDeleteByX(list, apt);
+            if(prev == list->tail)
+
             {
                 fprintf(stderr, "Element for deletion not found! \n");
                 return;
             }
+
             if(prevC == NULL)
                 DeleteFromBeginningOfList(list);
             else if(prevC->next == list->tail)
@@ -250,6 +314,22 @@ LNode *FindPlaceToDeleteByCode(List *list, int code)
     LNode *curr = list->head, *prev = NULL;
 
     while(curr && (curr->apartment->code != code))
+
+            if(prev == NULL)
+                DeleteFromBeginningOfList(list);
+            else if(prev->next == list->tail)
+                DeleteFromEndOfList(list);
+            else
+                DeleteFromInnerPlaceInList(prev);
+        }
+}
+
+LNode *FindPlaceToDeleteByX(List *list, Apt* apt)
+{
+    LNode *curr = list->head, *prev = NULL;
+
+    while(curr /* && (curr->X </=/> apt->X) */)
+
     {
         prev = curr;
         curr = curr->next;
@@ -269,6 +349,7 @@ void PrintList(List *list)
     }
 }
 
+
 void PrintData(Apt *apt) // printing the apartment details
 {
     printf("Apt details:\n");
@@ -278,6 +359,11 @@ void PrintData(Apt *apt) // printing the apartment details
     printf("Price: %d\n", apt->price);
     printf("Entry date: %d.%d.%d\n", apt->day, apt->month, apt->year);
     printf("Database entry date: %d\n", (int)apt->Database_entry_date);
+
+void PrintData(Apt *apt)
+{
+    printf("Apt details:\n Code: %d\n Address: %s\n Number of rooms: %d\n Price: %d\n Entry date: %d.%d.%d, Database entry date: %d\n", apt->code, apt->address, apt->num_of_rooms, apt->price, apt->day, apt->month, apt->year, (int)apt->Database_entry_date);
+
 }
 
 void ClearList(List *list)
@@ -298,6 +384,7 @@ void* check_malloc (int num_of_bytes)
     return new_arr;
 }
 
+
 void DeleteFromBeginningOfPList(List *list)
 {
     while(list->head) {
@@ -311,3 +398,5 @@ void DeleteFromBeginningOfPList(List *list)
         }
     }
 }
+
+

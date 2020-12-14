@@ -76,11 +76,40 @@
      }
  }
 
+
 /* ========================================== ADD AND BUY FUNCTIONS ==========================================*/
 
 Apt* CreApt(char* line) /* TEST ONLY _ NOT EFFICIENT !!! */
 {
     static int code = 1;
+
+ void printApt(Apt* apt)
+{
+    printf("--- apt code --- : %d\n",apt->code);
+    printf("address : %s\n",apt->address);
+    printf("price : %d\n",apt->price);
+    printf("num_of_rooms : %d\n",apt->num_of_rooms);
+    printf("entry date is : %d/%d/%d \n\n",apt->day,apt->month,apt->year);
+}
+
+
+/* ========================================== ADD AND BUY FUNCTIONS ==========================================*/
+
+LNode* CreateLnode(Apt* apt)
+{
+    LNode* res = (LNode*)malloc(sizeof(LNode));
+    if(!res)
+        exit(MEM_ALLOC_ERR);
+    res->prev = NULL;
+    res->next = NULL;
+    res->apartment = apt;
+    return res;
+}
+
+/* TEST ONLY _ NOT EFFICIENT !!! */
+Apt* CreApt(char* line)
+{
+
     Apt* res = (Apt*)malloc(sizeof(Apt));
     int i = 9, wi = 0 ;
     char ch = line[i++];
@@ -113,7 +142,6 @@ Apt* CreApt(char* line) /* TEST ONLY _ NOT EFFICIENT !!! */
     ch = line[i++];
     temp[1] = ch;
     res->num_of_rooms = atoi(temp);
-
     /* get day */
     ch = line[i++] ;
     temp[0] = ch ;

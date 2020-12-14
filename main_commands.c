@@ -1,5 +1,24 @@
 #include "main_commands.h"
 
+ void checkCommand(char* line, List* lstByCode, List* lstByPrice) // checking first letter of the line to decide which command
+ {
+    if(line[0] == 'a')
+        addApt(line, lstByCode, lstByPrice);
+    else if(line[0] == 'f')
+        find(lstByCode, line); // need to check which list to send
+    else if(line[0] == 'b')
+        buyApt(line, lstByCode, lstByPrice);
+    /*
+    else if(line[0] == 'd')
+        deleteApt(line);
+    else if(line[0] == 'e')
+        exitProg;
+    */
+   // else
+       // checkReconstraction(line, lstByCode, lstByPrice);
+
+ }
+
  /* ========================================== FIND AND DELETE FUNCTIONS ==========================================*/
 
  void find(List* apartment, char* line)
@@ -56,33 +75,13 @@
          token = strtok(NULL,delim);
      }
  }
- void printApt(apt* apt)
-{
-    printf("--- apt code --- : %d\n",apt->code);
-    printf("address : %s\n",apt->address);
-    printf("price : %d\n",apt->price);
-    printf("num_of_rooms : %d\n",apt->num_of_rooms);
-    printf("entry date is : %d/%d/%d \n\n",apt->day,apt->month,apt->year);
-}
-
 
 /* ========================================== ADD AND BUY FUNCTIONS ==========================================*/
 
-LNode* CreateLnode(apt* apt)
+Apt* CreApt(char* line) /* TEST ONLY _ NOT EFFICIENT !!! */
 {
-    LNode* res = (LNode*)malloc(sizeof(LNode));
-    if(!res)
-        exit(MEM_ALLOC_ERR);
-    res->prev = NULL;
-    res->next = NULL;
-    res->apartment = apt;
-    return res;
-}
-
-/* TEST ONLY _ NOT EFFICIENT !!! */
-apt* CreApt(char* line)
-{
-    apt* res = (apt*)malloc(sizeof(apt));
+    static int code = 1;
+    Apt* res = (Apt*)malloc(sizeof(Apt));
     int i = 9, wi = 0 ;
     char ch = line[i++];
     char* address = (char*)malloc(sizeof(char)*100);
@@ -97,6 +96,7 @@ apt* CreApt(char* line)
     }
     address[wi] = '\0';
     res->address = address ;
+
     /* get price */
     int pwi = 0 ;
     ch = line[++i];
@@ -135,5 +135,32 @@ apt* CreApt(char* line)
     temp[1] = ch;
     res->year= atoi(temp);
 
+    res->code = code;
+    code++;
+    res->Database_entry_date = 0;
+
     return res;
+}
+
+void addApt(char* line, List* lstByCode, List* lstByPrice) // adding apt to the lists
+{
+    Apt *apt1 = CreApt(line);
+    AddToListByCode(lstByCode, apt1); // adding the apartment to the list sorted by code
+    AddToListByPrice(lstByPrice, apt1); // adding the apartment to the list sorted by price
+}
+
+void buyApt(char* line, List* lstByCode, List* lstByPrice)
+{
+    int code = getCode(line); //needs to extract the num out of the line
+    DeleteFromList(lstByCode, lstByPrice, code);
+}
+
+int getCode(char *line)
+{
+    int code = 0, i = 0;
+    while(line[i] != ' ')
+        i++;
+    code = atoi(line+i);
+
+    return code;
 }

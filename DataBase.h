@@ -52,7 +52,6 @@ typedef struct CListNode{      /* commands singly linked list nodes  */
 /* Functions Implementation */
 Apt* AllocateApt(char* line);
 LNode *AllocateLNode(Apt *apt);
-List AllocateEmptyList();
 void InitializeList(List* list);
 void AddToEmptyList (List *list, LNode *node);
 void AddToBeginningOfList (List *list, LNode *node);
@@ -63,11 +62,15 @@ LNode* FindPlaceToInsertByCode(List *list, Apt* apt);
 void AddToListByPrice (List *list, Apt* apt);
 void AddToListByCode (List *list, Apt* apt);
 void DeleteFromInnerPlaceInList(LNode *prev);
+void DeleteFromInnerPlaceInPriceList(LNode *prev);
 void DeallocateListNode(LNode *node);
 void DeleteFromBeginningOfList(List *list);
+void DeleteFromBeginningOfPriceList(List *list);
 void DeleteFromEndOfList(List *list);
-void DeleteFromList (List *list, Apt *apt);
-LNode *FindPlaceToDeleteByX(List *list, Apt* apt);
+void DeleteFromEndOfPriceList(List *list);
+void DeleteFromList (List *list, List *listByPrice, int code);
+void DeleteFromPriceList(List *list, LNode *prev);
+LNode *FindPlaceToDeleteByCode(List *list, int code);
 void PrintList(List *list);
 void PrintData(Apt *apt);
 void ClearList(List *list);

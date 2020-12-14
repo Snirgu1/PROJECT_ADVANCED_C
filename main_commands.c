@@ -1,11 +1,16 @@
 #include "main_commands.h"
 
+
  void checkCommand(char* line, List* lstByCode, List* lstByPrice)
+=======
+ void checkCommand(char* line, List* lstByCode, List* lstByPrice) // checking first letter of the line to decide which command
+
  {
     if(line[0] == 'a')
         addApt(line, lstByCode, lstByPrice);
     else if(line[0] == 'f')
         find(lstByCode, line); // need to check which list to send
+
         /*
     else if(line[0] == 'b')
         buyApt(line);
@@ -14,6 +19,19 @@
     else
         exitProg;
          */
+
+    else if(line[0] == 'b')
+        buyApt(line, lstByCode, lstByPrice);
+    /*
+    else if(line[0] == 'd')
+        deleteApt(line);
+    else if(line[0] == 'e')
+        exitProg;
+    */
+   // else
+       // checkReconstraction(line, lstByCode, lstByPrice);
+
+
  }
 
  /* ========================================== FIND AND DELETE FUNCTIONS ==========================================*/
@@ -72,6 +90,17 @@
          token = strtok(NULL,delim);
      }
  }
+
+=======
+
+
+/* ========================================== ADD AND BUY FUNCTIONS ==========================================*/
+
+Apt* CreApt(char* line) /* TEST ONLY _ NOT EFFICIENT !!! */
+{
+    static int code = 1;
+
+
  void printApt(Apt* apt)
 {
     printf("--- apt code --- : %d\n",apt->code);
@@ -82,7 +111,11 @@
 }
 
 /* ========================================== ADD AND BUY FUNCTIONS ==========================================*/
+
 /*
+
+
+
 LNode* CreateLnode(Apt* apt)
 {
     LNode* res = (LNode*)malloc(sizeof(LNode));
@@ -97,7 +130,11 @@ LNode* CreateLnode(Apt* apt)
 /* TEST ONLY _ NOT EFFICIENT !!! */
 Apt* CreApt(char* line)
 {
+
     static int code = 1;
+=======
+
+
     Apt* res = (Apt*)malloc(sizeof(Apt));
     int i = 9, wi = 0 ;
     char ch = line[i++];
@@ -113,6 +150,7 @@ Apt* CreApt(char* line)
     }
     address[wi] = '\0';
     res->address = address ;
+
     /* get price */
     int pwi = 0 ;
     ch = line[++i];
@@ -157,9 +195,33 @@ Apt* CreApt(char* line)
     return res;
 }
 
+
 void addApt(char* line, List* lstByCode, List* lstByPrice)
 {
     Apt *apt1 = CreApt(line);
     AddToListByCode(lstByCode, apt1);
     AddToListByPrice(lstByPrice, apt1);
+=======
+void addApt(char* line, List* lstByCode, List* lstByPrice) // adding apt to the lists
+{
+    Apt *apt1 = CreApt(line);
+    AddToListByCode(lstByCode, apt1); // adding the apartment to the list sorted by code
+    AddToListByPrice(lstByPrice, apt1); // adding the apartment to the list sorted by price
+}
+
+void buyApt(char* line, List* lstByCode, List* lstByPrice)
+{
+    int code = getCode(line); //needs to extract the num out of the line
+    DeleteFromList(lstByCode, lstByPrice, code);
+}
+
+int getCode(char *line)
+{
+    int code = 0, i = 0;
+    while(line[i] != ' ')
+        i++;
+    code = atoi(line+i);
+
+    return code;
+
 }

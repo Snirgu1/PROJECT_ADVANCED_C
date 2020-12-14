@@ -1,40 +1,23 @@
-#ifndef PROJECT_DATABASE_H
-#define PROJECT_DATABASE_H
-#define _CRT_SECURE_NO_WARNINGS
+#ifndef PROJECT_ADVANCED_C_DATABASE_H
+#define PROJECT_ADVANCED_C_DATABASE_H
 #include<stdio.h>
 #include<time.h>
 #include<stdlib.h>
 #include<string.h>
-#include<math.h>
 
 /* Define and MACROS */
 #define Uchar unsigned char
 #define Uint unsigned int
 #define N 7
+#define NUM_OF_RECON_COMMANDS 5
 #define MEM_ALLOC_ERR (-1)
-#define NUM_OF_DELIM 3
+#define NUM_OF_DELIM 2
 #define NUM_OF_FIND_COMMANDS 8
 #define INCREASE 1
-#define DECREASE (-1)
-#define MAX_INIT 2147483647 // 2^31;
-#define INITIAL 0
-#define TRUE 1
-#define MAXROOMS 15
-#define FALSE 0
-#define EXIT_PROG 1
-#define BOOL int
+#define DECREASE 1
+#define INITIAL (-1)
+
 /* Data structure implementation */
-
-typedef struct FindKeys{
-    short int year,month,day;
-    short int lastXdays_enter;
-    short int minR;
-    short int maxR;
-    short int order;
-    int maxP;
-    int minP;
-}Find_keys;
-
 typedef struct Apartment{        /* apartment details */
     int code ;
     char* address;
@@ -56,12 +39,12 @@ typedef struct ListNode {        /* doubly linked list node struct */
 }LNode;
 
 typedef struct Commands_List {   /* singly linked list struct (commands) */
-    struct CListNode* head;
-    struct CListNode* tail;
+    struct Clnode* head;
+    struct Clnode* tail;
 }CList;
 
 typedef struct CListNode{      /* commands singly linked list nodes  */
-    struct CListNode* next;
+    struct ListNode* next;
     char* command;
     int commandNum;
 }CLnode;
@@ -91,11 +74,5 @@ void PrintData(Apt *apt);
 void ClearList(List *list);
 void* check_malloc (int num_of_bytes);
 void DeleteFromBeginningOfPList(List *list);
-CLnode* AllocateCLnode(char* command);
-void AddToCList(CList *list, char* command);
-void ClearCList(CList *list);
-void DeleteFromBeginningOfCList(CList *list);
-void DeallocateCListcell(CLnode *cell);
-void PrintCList(CList *list);
-void PrintShortHArray(char **array, CList *list);
-#endif //PROJECT_DATABASE_H
+
+#endif

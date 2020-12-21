@@ -4,8 +4,8 @@
 
 #include "DataBase.h"
 
+static int commandCounter = 1;
 static int code = 1;
-static int commandNUM = 1;
 // to follow the last apt code
 
 /* allocating new apartment and initializing the parameters by the line */
@@ -298,8 +298,8 @@ CLnode* AllocateCLnode(char* command)
     res = (CLnode*)check_malloc(sizeof(CLnode));
     res->next = NULL;
     res->command = command;
-    res->commandNum = commandNUM;
-    commandNUM++;
+    res->commandNum = commandCounter;
+    commandCounter++;
 
     return res;
 
@@ -356,24 +356,13 @@ void PrintCList(CList *list)
         printf("%d: %s\n",curr->commandNum, curr->command);
         curr = curr->next;
     }
-    printf("\n");
 }
 
 void PrintShortHArray(char **array, CList *list)
 {
- CLnode *curr = list->head;
- int i = 0;
- while(curr != NULL)
- {
-     if(strcmp(curr->command, array[0]) == 0)
+     int i;
+     for(i = 0; i < N; i++)
      {
-         for( i = 0; i < 7; i++)
-         {
-             printf("%d: %s\n", curr->commandNum, curr->command);
-             curr = curr->next;
-         }
-         break;
+         printf("%d: %s\n", list->tail->commandNum+i+1, array[i]);
      }
-     curr = curr->next;
- }
 }

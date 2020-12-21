@@ -25,8 +25,10 @@ void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHis
     }
         else if(line[0] == 'e')
         exitProg();
-        else if(line[0] == 'h')
-            PrintCList(history);
+        else if(line[0] == 'h') {
+        PrintCList(history);
+        PrintShortHArray(shortHistory, history);
+    }
         else if(line[0] == 's')
             PrintShortHArray(shortHistory, history);
     else

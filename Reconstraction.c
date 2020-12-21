@@ -3,6 +3,7 @@
 //
 
 #include "Reconstraction.h"
+static int commandNum = 1;
 
 void checkReconstraction(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history)
 {
@@ -45,7 +46,7 @@ void findCommand(char *line, int num, List* lstByCode, List* lstByPrice, char** 
             curr = curr->next;
     }
     if(curr == NULL)
-        printf("No command found!\n");
+        switchCommand(line, shortHistory[N-(commandNum-num)], lstByCode, lstByPrice, shortHistory, history);
 }
 
 void InitializeSHistory(char** shortHistory)
@@ -59,18 +60,19 @@ void InitializeSHistory(char** shortHistory)
 
 void recordHistory(char* line, char** shortHistory, CList* history)
 {
-    //char *command;
     static int i = 0;
+
     int j, k;
     if(i != 7){
         shortHistory[i] = strdup(line);
-        AddToCList(history, shortHistory[i]);
+        commandNum++;
         i++;
     }
     else{
+        AddToCList(history, shortHistory[0]);
         for (j = 0, k = 1; j < 6; j++, k++)
             shortHistory[j] = shortHistory[k];
         shortHistory[6] = strdup(line);
-        AddToCList(history, shortHistory[6]);
+        commandNum++;
     }
 }

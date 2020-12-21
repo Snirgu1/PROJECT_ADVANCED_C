@@ -80,7 +80,13 @@ void AddToBeginningOfList (List *list, LNode *node);
 void AddToEndOfList (List *list, LNode *node);
 void AddToInnerPlaceInList (LNode *prev, LNode *node);
 LNode* FindPlaceToInsertByPrice(List *list, Apt* apt);
+
 void AddToListByPrice (List *list, Apt* apt);
+
+LNode* FindPlaceToInsertByCode(List *list, Apt* apt);
+void AddToListByPrice (List *list, Apt* apt);
+void AddToListByCode (List *list, Apt* apt);
+
 void DeleteFromInnerPlaceInList(LNode *prev);
 void DeleteFromInnerPlaceInPriceList(LNode *prev);
 void DeallocateListNode(LNode *node);
@@ -96,6 +102,7 @@ void PrintData(Apt *apt);
 void ClearList(List *list);
 void* check_malloc (int num_of_bytes);
 void DeleteFromBeginningOfPList(List *list);
+
 CLnode* AllocateCLnode(char* command);
 void AddToCList(CList *list, char* command);
 void ClearCList(CList *list);
@@ -104,3 +111,7 @@ void DeallocateCListcell(CLnode *cell);
 void PrintCList(CList *list);
 void PrintShortHArray(char **array, CList *list);
 #endif //PROJECT_DATABASE_H
+
+
+#endif
+

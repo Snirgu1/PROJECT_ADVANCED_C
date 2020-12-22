@@ -1,7 +1,3 @@
-//
-// Created by idanm on 12/19/2020.
-//
-
 #ifndef PROJECT_DATABASE_H
 #define PROJECT_DATABASE_H
 #define _CRT_SECURE_NO_WARNINGS
@@ -15,13 +11,12 @@
 #define Uchar unsigned char
 #define Uint unsigned int
 #define N 7
-#define NUM_OF_RECON_COMMANDS 5
 #define MEM_ALLOC_ERR (-1)
-#define NUM_OF_DELIM 2
+#define NUM_OF_DELIM 3
 #define NUM_OF_FIND_COMMANDS 8
 #define INCREASE 1
 #define DECREASE (-1)
-#define MAX_INIT 2147483647
+#define MAX_INIT 2147483647 // 2^31;
 #define INITIAL 0
 #define TRUE 1
 #define MAXROOMS 15
@@ -80,13 +75,7 @@ void AddToBeginningOfList (List *list, LNode *node);
 void AddToEndOfList (List *list, LNode *node);
 void AddToInnerPlaceInList (LNode *prev, LNode *node);
 LNode* FindPlaceToInsertByPrice(List *list, Apt* apt);
-
 void AddToListByPrice (List *list, Apt* apt);
-
-LNode* FindPlaceToInsertByCode(List *list, Apt* apt);
-void AddToListByPrice (List *list, Apt* apt);
-void AddToListByCode (List *list, Apt* apt);
-
 void DeleteFromInnerPlaceInList(LNode *prev);
 void DeleteFromInnerPlaceInPriceList(LNode *prev);
 void DeallocateListNode(LNode *node);
@@ -102,7 +91,6 @@ void PrintData(Apt *apt);
 void ClearList(List *list);
 void* check_malloc (int num_of_bytes);
 void DeleteFromBeginningOfPList(List *list);
-
 CLnode* AllocateCLnode(char* command);
 void AddToCList(CList *list, char* command);
 void ClearCList(CList *list);
@@ -111,7 +99,3 @@ void DeallocateCListcell(CLnode *cell);
 void PrintCList(CList *list);
 void PrintShortHArray(char **array, CList *list);
 #endif //PROJECT_DATABASE_H
-
-
-#endif
-

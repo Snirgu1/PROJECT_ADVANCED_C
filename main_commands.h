@@ -3,13 +3,7 @@
 #include "DataBase.h"
 #include "Reconstraction.h"
 
-
 void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history);
-
-void checkCommand(char* line, List* lstByCode, List* lstByPrice);
-
-void checkCommand(char* line, List* lstByCode, List* lstByPrice);
-
 
 /* ===== FIND FUNCTIONS =====*/
 void find(List* price_lst, List* code_lst, char* line);
@@ -22,24 +16,10 @@ BOOL checkDataBaseEntryDate(time_t Database_entry_date, short int days_ago);
 
 /* ===== ADD FUNCTIONS =====*/
 Apt* CreApt(char* line); /* TEST ONLY !!!! _ NOT EFFICIENT */
-
 void addApt(char* line, List* lstByCode, List* lstByPrice);
 
 /* ===== BUY FUNCTIONS =====*/
 void buyApt(char* line, List* lstByCode, List* lstByPrice);
-
-LNode* CreateLnode(Apt* apt);
-
-void addApt(char* line, List* lstByCode, List* lstByPrice);
-
-
-void addApt(char* line, List* lstByCode, List* lstByPrice);
-
-
-/* ===== BUY FUNCTIONS =====*/
-void buyApt(char* line, List* lstByCode, List* lstByPrice);
-int getCode(char *line);
-
 
 /* ===== DELETE FUNCTIONS =====*/
 void deleteApt(char *line ,List *lstByPrice, List *lstByCode);

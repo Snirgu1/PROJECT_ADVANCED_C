@@ -5,7 +5,7 @@ int main() {
     List lst, lstPrice;
     InitializeList(&lst);
     InitializeList(&lstPrice);
-    char *short_term_history[N];
+    char *short_term_history[N]; /*d*/
     InitializeSHistory(short_term_history);
     CList history;
     history.head = history.tail = NULL;

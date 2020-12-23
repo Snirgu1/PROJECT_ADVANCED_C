@@ -98,3 +98,11 @@ void recordHistory(char* line, char** shortHistory, CList* history)
         commandNum++;
     }
 }
+
+void InitializeDataBase(List *lst,List* lstPrice,char** short_term_history,CList* history)
+{
+    InitializeList(lst);
+    InitializeList(lstPrice);
+    InitializeSHistory(short_term_history);
+    InitializeClist(history);
+}

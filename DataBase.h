@@ -23,6 +23,7 @@
 #define FALSE 0
 #define EXIT_PROG 1
 #define BOOL int
+#define FILE_ERROR 1
 /* Data structure implementation */
 
 typedef struct FindKeys{
@@ -67,9 +68,12 @@ typedef struct CListNode{      /* commands singly linked list nodes  */
 }CLnode;
 
 /* Functions Implementation */
+
+//void InitializeDataBase(List *lst,List* lstPrice,char** short_term_history,CList* history);
 Apt* AllocateApt(char* line);
 LNode *AllocateLNode(Apt *apt);
 void InitializeList(List* list);
+void InitializeClist(CList* Clst);
 void AddToEmptyList (List *list, LNode *node);
 void AddToBeginningOfList (List *list, LNode *node);
 void AddToEndOfList (List *list, LNode *node);

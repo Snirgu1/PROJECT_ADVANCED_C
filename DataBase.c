@@ -1,9 +1,5 @@
-//
-// Created by idanm on 12/19/2020.
-//
-
 #include "DataBase.h"
-
+#include "Reconstraction.h"
 static int commandCounter = 1;
 static int code = 1;
 // to follow the last apt code
@@ -78,13 +74,11 @@ void AddToInnerPlaceInList (LNode *prev, LNode *node)
 LNode* FindPlaceToInsertByPrice(List *list, Apt* apt)
 {
     LNode *curr = list->head, *prev = NULL;
-
     while (curr && (curr->apartment->price < apt->price))
     {
         prev = curr;
         curr = curr->next;
     }
-
     return prev;
 }
 
@@ -350,7 +344,6 @@ void DeallocateCListcell(CLnode *cell)
 void PrintCList(CList *list)
 {
     CLnode *curr = list->head;
-
     while(curr)
     {
         printf("%d: %s\n",curr->commandNum, curr->command);
@@ -360,9 +353,20 @@ void PrintCList(CList *list)
 
 void PrintShortHArray(char **array, CList *list)
 {
-    int i;
-    for(i = 0; i < N; i++)
+    int i, cmd_ind = 0;
+    if(list->head == NULL)
+        cmd_ind = 1 ;
+    else
+        cmd_ind == ( list->tail->commandNum )+ 1;
+
+    for(i = 0; array[i] != NULL &&  i < N ; i++)
     {
-        printf("%d: %s\n", list->tail->commandNum+i+1, array[i]);
+        printf("%d: %s\n", cmd_ind++, array[i++]);
     }
 }
+
+void InitializeClist(CList* Clst)
+{
+    Clst->head = Clst->tail = NULL;
+}
+

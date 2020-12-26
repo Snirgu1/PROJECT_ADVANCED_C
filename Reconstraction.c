@@ -83,7 +83,6 @@ void InitializeSHistory(char** shortHistory)
 void recordHistory(char* line, char** shortHistory, CList* history)
 {
     static int i = 0;
-
     int j, k;
     if(i != 7){
         shortHistory[i] = strdup(line);

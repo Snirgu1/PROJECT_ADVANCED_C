@@ -10,6 +10,7 @@
 /* Define and MACROS */
 #define Uchar unsigned char
 #define Uint unsigned int
+#define Sint short int
 #define N 7
 #define MEM_ALLOC_ERR (-1)
 #define NUM_OF_DELIM 3
@@ -24,6 +25,7 @@
 #define EXIT_PROG 1
 #define BOOL int
 #define FILE_ERROR 1
+#define BYTE unsigned char
 /* Data structure implementation */
 
 typedef struct FindKeys{
@@ -35,6 +37,8 @@ typedef struct FindKeys{
     int maxP;
     int minP;
 }Find_keys;
+
+
 
 typedef struct Apartment{        /* apartment details */
     int code ;

@@ -71,7 +71,8 @@ void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHis
     }
     else if(line[0] == 'e')
         exitProg();
-    else if(line[0] == 'h') {
+    else if(line[0] == 'h')
+    {
         PrintCList(history);
         PrintShortHArray(shortHistory, history);
     }
@@ -93,15 +94,15 @@ BOOL isEarlier(short int apt_year,short int apt_month ,short int apt_day, Find_k
 {
     if(apt_year < keys->year)                /* in case of earlier year */
         return TRUE;
-    else if( apt_year > keys->year)         /*  in case of later year */
+    else if( apt_year > keys->year)          /*  in case of later year */
         return FALSE;
-    else      /* in case of equal year */
+    else                                     /* in case of equal year */
     {
         if(apt_month < keys->month )         /* in case of equal year and earlier month  */
             return TRUE;
-        else if (apt_month > keys->month )    /* in case of equal year and bigger month  */
+        else if (apt_month > keys->month )   /* in case of equal year and bigger month  */
             return FALSE;
-        else                                   /* in case of equal year and month */
+        else                                 /* in case of equal year and month */
         {
             if(apt_day <= keys->day)         /* in case of earlier day and equal year and month */
                 return TRUE;

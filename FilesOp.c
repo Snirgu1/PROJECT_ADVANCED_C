@@ -43,10 +43,9 @@ void WriteCmdArrToFile(FILE* f,char* shortHistory[],int start_ind)
 /* get history from txt file in start of project */
 void getHistoryFromFile(char* short_term_history[] ,CList* history)
 {
-    int i = 0 ,j = 0 ,num = 0;
-    int offset  ;
-    char* temp ,tokTemp;
-    char* token;
+    int num;
+    int offset;
+    char* temp;
 
     FILE *f = fopen("HistoryDoc.txt","r");
     if(!f)
@@ -55,9 +54,14 @@ void getHistoryFromFile(char* short_term_history[] ,CList* history)
         exit(FILE_ERROR);
     }
 
-    while( !feof(f) )
+    while( fgetc(f) != EOF )
     {
+        fseek(f,-1,SEEK_CUR);
         temp = get_line(f);
+//        printf("cmd received from file is: %s\n",temp);
+        sscanf(temp,"%d",&num);
+        offset = checkNumLength(num) + 2;
+        recordHistory(temp+offset,short_term_history,history);
     }
     fclose(f);
 }
@@ -253,7 +257,7 @@ void readBinFile(char* fname) /* TEST ONLY - NOT NEEDED*/
         fread(&EntryToDB,sizeof(time_t),1,f);
         printf("EntryToDB : %ld\n\n", EntryToDB);
 
-        fseek(f,3,SEEK_CUR);
+        fseek(f,3,SEEK_CUR);                    /* need to extract info from this 3B */
         i++;
     }
 }

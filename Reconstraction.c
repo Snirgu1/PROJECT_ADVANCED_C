@@ -1,5 +1,6 @@
 #include "Reconstraction.h"
 static int commandNum = 1;
+static int i = 0;
 
 void checkReconstraction(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history)
 {
@@ -82,7 +83,7 @@ void InitializeSHistory(char** shortHistory)
 
 void recordHistory(char* line, char** shortHistory, CList* history)
 {
-    static int i = 0;
+//    static int i = 0;
     int j, k;
     if(i != 7){
         shortHistory[i] = strdup(line);

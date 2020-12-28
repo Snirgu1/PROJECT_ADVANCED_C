@@ -6,7 +6,9 @@ int main()
     CList history;
     char *short_term_history[N];
     InitializeDataBase(&lst,&lstPrice,short_term_history,&history); /* initialize required Lists and array */
-//    getHistoryFromFile(short_term_history,&history);
+    getHistoryFromFile(short_term_history,&history);
+//    char* temp ="history";
+//    checkCommand(temp,&lst,&lstPrice,short_term_history,&history);
     TestProject(&lst,&lstPrice,short_term_history,&history);        /* Project tests */
     WriteHistoryToFile(&history,short_term_history);                /* writing history to txt file */
     WriteDatabaseToBinFile(&lst);                                   /* writing apartments DB to Bin file */

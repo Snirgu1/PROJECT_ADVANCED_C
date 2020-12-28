@@ -353,15 +353,15 @@ void PrintCList(CList *list)
 
 void PrintShortHArray(char **array, CList *list)
 {
-    int i, cmd_ind = 0;
+    int i, cmd_ind ;
     if(list->head == NULL)
         cmd_ind = 1 ;
     else
-        cmd_ind == ( list->tail->commandNum )+ 1;
+        cmd_ind = list->tail->commandNum +1;
 
     for(i = 0; array[i] != NULL &&  i < N ; i++)
     {
-        printf("%d: %s\n", cmd_ind++, array[i++]);
+        printf("%d: %s\n", cmd_ind++, array[i]);
     }
 }
 

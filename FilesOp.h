@@ -25,6 +25,7 @@ void CollectMonth(BYTE* currByte,Sint month);
 void CollectYear(BYTE* res, BYTE* currByte,Sint year);
 void CollectDay(BYTE* res, BYTE* currByte,Sint day);
 void readBinFile(char* fname);
+void getRoomsAndDate(FILE* f,Sint* num_of_apts,Sint* year,Sint*month,Sint* day);
 
 
 

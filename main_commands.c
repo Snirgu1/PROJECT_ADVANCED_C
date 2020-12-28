@@ -49,7 +49,6 @@ void TestProject(List* lst,List* lstPrice,char* short_term_history[] ,CList *his
     checkCommand(temp, lst, lstPrice,short_term_history, history);
 }
 
-
 /* comparing the first letter of the line to decide which command to active */
 void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history) // checking first letter of the line to decide which command
 {
@@ -264,16 +263,7 @@ void deleteApt(char *line  ,List *lstByPrice, List *lstByCode)
 {
     int days_ago = collectDaysRange(line);
     LNode *curr = lstByCode->tail;
-    /*
-    for( curr = lstByCode->tail; curr != NULL ; curr = curr->prev  )
-    {
-        if(InTimeRange(curr->apartment,days_ago))
-        {
-            DeleteFromList(lstByCode, lstByPrice, curr->apartment->code);
-            curr = lstByCode->tail;
-        }
-    }
-     */
+
     while(curr != NULL)
     {
         if(InTimeRange(curr->apartment,days_ago))

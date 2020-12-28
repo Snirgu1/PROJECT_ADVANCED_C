@@ -45,20 +45,17 @@ void getHistoryFromFile(char* short_term_history[] ,CList* history)
 {
     int num;
     int offset;
-    char* temp;
-
+    char *temp = NULL;
     FILE *f = fopen("HistoryDoc.txt","r");
     if(!f)
     {
         fprintf(stderr,"using file error, exiting..\n");
         exit(FILE_ERROR);
     }
-
     while( fgetc(f) != EOF )
     {
         fseek(f,-1,SEEK_CUR);
         temp = get_line(f);
-//        printf("cmd received from file is: %s\n",temp);
         sscanf(temp,"%d",&num);
         offset = checkNumLength(num) + 2;
         recordHistory(temp+offset,short_term_history,history);
@@ -227,7 +224,7 @@ BOOL isBitISet(BYTE ch, int i)
         return TRUE;
 }
 
-void readBinFile(char* fname) /* TEST ONLY - NOT NEEDED*/
+void readBinFile(char* fname) /* TEST ONLY - NOT NEEDED */
 {
     FILE* f = fopen(fname, "rb");
     int num_of_apts = 0,  price ,i = 0 ;
@@ -242,25 +239,34 @@ void readBinFile(char* fname) /* TEST ONLY - NOT NEEDED*/
     {
         fread(&code,sizeof(Sint),1,f);
         printf("code : %d\n", code);
-
         fread(&len,sizeof(Sint),1,f);
         printf("len : %d\n", len);
-
         address =(char*)check_malloc(sizeof(char)*len);
         fread(address,sizeof(BYTE),len,f);
         address[len] = '\0';
         printf("address : %s\n", address);
-
         fread(&price,sizeof(int),1,f);
         printf("price : %d\n", price);
-
         fread(&EntryToDB,sizeof(time_t),1,f);
         printf("EntryToDB : %ld\n\n", EntryToDB);
-
+//        getRoomsAndDate(f,&num_of_rooms,&year,&month,&day);
         fseek(f,3,SEEK_CUR);                    /* need to extract info from this 3B */
         i++;
     }
 }
+
+void getRoomsAndDate(FILE* f,Sint* num_of_rooms,Sint* year,Sint*month,Sint* day)
+{
+    BYTE Mask = 0xF0;
+    BYTE currByte = 0 ;
+    fread(&currByte,sizeof (BYTE),1,f);
+    BYTE temp = (Mask & currByte);
+    temp >>= 4;
+    *num_of_rooms = temp;
+    fseek(f,2,SEEK_CUR);
+
+}
+
 /* day -  00000000 000XXXXX */
 /* month -  00000000 0000XXXX */
 /* year -  00000000 0XXXXXXX */

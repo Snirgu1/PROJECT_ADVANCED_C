@@ -5,6 +5,7 @@
 #include "Reconstraction.h"
 
 void TestProject(List* lst,List* lstPrice,char* short_term_history[] ,CList *history);
+void TestProjectAfterFiles(List* lst,List* lstPrice,char* short_term_history[] ,CList *history);
 void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history);
 
 /* ===== FIND FUNCTIONS =====*/

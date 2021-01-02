@@ -49,6 +49,22 @@ void TestProject(List* lst,List* lstPrice,char* short_term_history[] ,CList *his
     checkCommand(temp, lst, lstPrice,short_term_history, history);
 }
 
+void TestProjectAfterFiles(List* lst,List* lstPrice,char* short_term_history[] ,CList *history)
+{
+    char* temp ;
+    temp = "history";
+    checkCommand(temp,lst,lstPrice,short_term_history,history);
+    temp = "add-apt \"Moshe Dayan 4 Eilat\" 1300000 4 27 08 20";
+    checkCommand(temp,lst,lstPrice,short_term_history,history);
+    temp = "find-apt -MaxPrice 2250000 –sr";
+    checkCommand(temp,lst,lstPrice,short_term_history,history);
+    temp = "short_history";
+    checkCommand(temp,lst,lstPrice,short_term_history,history);
+    temp = "history";
+    checkCommand(temp,lst,lstPrice,short_term_history,history);
+}
+
+
 /* comparing the first letter of the line to decide which command to active */
 void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history) // checking first letter of the line to decide which command
 {
@@ -288,7 +304,6 @@ void addApt(char* line, List* lstByCode, List* lstByPrice)
     AddToListByPrice(lstByPrice, apt1); // adding the apartment to the list sorted by price
 }
 
-/*  */
 void buyApt(char* line, List* lstByCode, List* lstByPrice)
 {
     int code = atoi(line+8);

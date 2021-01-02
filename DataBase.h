@@ -26,6 +26,8 @@
 #define BOOL int
 #define FILE_ERROR 1
 #define BYTE unsigned char
+
+
 /* Data structure implementation */
 
 typedef struct FindKeys{
@@ -45,6 +47,7 @@ typedef struct Apartment{        /* apartment details */
     char* address;
     int price ;
     short int num_of_rooms;
+
     short int day, month,year;
     time_t Database_entry_date;
 }Apt;

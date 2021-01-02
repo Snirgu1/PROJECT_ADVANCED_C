@@ -31,8 +31,8 @@ void WriteCListToFile(FILE* f,CList *lst_history)
 void WriteCmdArrToFile(FILE* f,char* shortHistory[],int start_ind)
 {
     int  i = 0 ;
-    int curr_cmd_ind = start_ind ;
-    while( shortHistory[i] != NULL  && i < 7)
+    int curr_cmd_ind = start_ind;
+    while( shortHistory[i] != NULL && i < 7 )
     {
         fprintf(f,"%d: %s\n",curr_cmd_ind,shortHistory[i]);
         curr_cmd_ind++;
@@ -49,16 +49,19 @@ void getHistoryFromFile(char* short_term_history[] ,CList* history)
     FILE *f = fopen("HistoryDoc.txt","r");
     if(!f)
     {
-        fprintf(stderr,"using file error, exiting..\n");
-        exit(FILE_ERROR);
+        fprintf(stderr,"File could not be opened to retrieve your data from it.\n");
+        return;
     }
     while( fgetc(f) != EOF )
     {
         fseek(f,-1,SEEK_CUR);
         temp = get_line(f);
-        sscanf(temp,"%d",&num);
-        offset = checkNumLength(num) + 2;
-        recordHistory(temp+offset,short_term_history,history);
+        if(strcmp(temp,"\n") != 0 )
+        {
+            sscanf(temp,"%d",&num);
+            offset = checkNumLength(num) + 2;
+            recordHistory(temp+offset,short_term_history,history);
+        }
     }
     fclose(f);
 }
@@ -95,16 +98,10 @@ void WriteDatabaseToBinFile(List* lst)
         fprintf(stderr,"error openeing file, exiting...\n");
         exit(FILE_ERROR);
     }
-
-
     int num_of_apts = getSize(lst);
-
     fwrite(&num_of_apts, sizeof(int),1, f);
-
     for( curr = lst->head ;  curr != NULL ; curr = curr->next )
-    {
-        WriteApt(f,curr);
-    }
+        WriteAptToBinFile(f,curr);
     fclose(f);
 }
 
@@ -123,7 +120,7 @@ int getSize(List *lst)
 }
 
 /* writing apartment's details to BinFile */
-void WriteApt(FILE* f,LNode* curr)
+void WriteAptToBinFile(FILE* f,LNode* curr)
 {
     BYTE *RoomsAndDate;
     Sint len = (Sint)strlen(curr->apartment->address);
@@ -158,7 +155,7 @@ BYTE ExtractRooms(Sint numOfRooms)
     return res;
 }
 
-/*  collect apt entry date */
+/*  collect apt entry date  */
 void ExtractDate(BYTE* res,BYTE* currByte,Apt* apt)
 {
     CollectDay(res,currByte,apt->year);
@@ -171,13 +168,13 @@ void CollectDay(BYTE* res, BYTE* currByte,Sint day)
 {
     int wi = 7,ri = 0 ;                /* wi -bit location to write in currByte,  ri - bit location to read from day */
     *currByte |= (day >> 1) ;
-    res[0] = *currByte ;
+    *res = *currByte ;
     *currByte = 0 ;
     if( isBitISet(day,ri) == TRUE )
         setBit(currByte,wi);
 }
 
-/* collect apt entry month of date */
+/* collect apt entry month  */
 void CollectMonth(BYTE* currByte,Sint month)
 {
     int ri = 3, wi = 6;     /* wi -bit location to write in currByte,  ri - bit location to read from month */
@@ -224,49 +221,84 @@ BOOL isBitISet(BYTE ch, int i)
         return TRUE;
 }
 
-void readBinFile(char* fname) /* TEST ONLY - NOT NEEDED */
+Apt *ReadSingleAptBin(FILE *f)
 {
-    FILE* f = fopen(fname, "rb");
-    int num_of_apts = 0,  price ,i = 0 ;
-    Sint code, len ,day ,month,year , num_of_rooms ;
+    Sint code,len,day,month,year,num_of_rooms ;
+    int price;
+    char* address;
     time_t EntryToDB ;
-    char* address  = NULL ;
-    printf("\nSTART READING FROM BIN FILE\n");
-    fread(&num_of_apts,sizeof(int),1,f);
-    printf("Num of apartments :%d\n\n", num_of_apts);
+    Apt* apt = check_malloc(sizeof(Apt));
 
-    while( i  < num_of_apts )
+    fread(&code,sizeof(Sint),1,f);
+    fread(&len,sizeof(Sint),1,f);
+    address =(char*)check_malloc(sizeof(char)*len);
+    fread(address,sizeof(BYTE),len,f);
+    address[len] = '\0';
+    fread(&price,sizeof(int),1,f);
+    fread(&EntryToDB,sizeof(time_t),1,f);
+    getRoomsAndDate(f,&num_of_rooms,&year,&month,&day);
+    printf("\ncode: %d\n", code);
+    printf("len: %d\n", len);
+    printf("address: %s\n", address);
+    printf("price: %d\n", price);
+    printf("EntryToDB: %ld\n", EntryToDB);
+    printf("Entry date is: %d.%d.%d\n",day,month,year);
+    apt->year = year;
+    apt->month = month;
+    apt->day = day;
+    apt->num_of_rooms = num_of_rooms;
+    apt->address = address;
+    apt->Database_entry_date = EntryToDB;
+    apt->price = price;
+    apt->code = code++;
+    return apt;
+}
+
+void ReadBinFile(char* fname, List* lstByCode, List* lstByPrice)
+{
+    int num_of_apts,i = 0;
+    FILE* f = fopen(fname, "rb");
+    if(!f)
+        exit(FILE_ERROR);
+
+    fread(&num_of_apts,sizeof(int),1,f);
+    printf("\nSTART READING BIN FILE %d apartments total \n",num_of_apts);
+    while( i < num_of_apts )
     {
-        fread(&code,sizeof(Sint),1,f);
-        printf("code : %d\n", code);
-        fread(&len,sizeof(Sint),1,f);
-        printf("len : %d\n", len);
-        address =(char*)check_malloc(sizeof(char)*len);
-        fread(address,sizeof(BYTE),len,f);
-        address[len] = '\0';
-        printf("address : %s\n", address);
-        fread(&price,sizeof(int),1,f);
-        printf("price : %d\n", price);
-        fread(&EntryToDB,sizeof(time_t),1,f);
-        printf("EntryToDB : %ld\n\n", EntryToDB);
-//        getRoomsAndDate(f,&num_of_rooms,&year,&month,&day);
-        fseek(f,3,SEEK_CUR);                    /* need to extract info from this 3B */
+        Apt* apt = ReadSingleAptBin(f);
+        if(lstByCode->head == NULL)
+            AddToEmptyList(lstByCode, AllocateLNode(apt));
+        else
+            AddToEndOfList(lstByCode, AllocateLNode(apt));
+        AddToListByPrice(lstByPrice, apt);
+        /* need to insert apt to DB somehow - WAITING FOR CHECK WITH IDAN */
         i++;
     }
 }
 
+
+/* The function gets 3B array and collect apt's num_of_rooms and Entry date (   bits ->TO-> actual_val ) */
 void getRoomsAndDate(FILE* f,Sint* num_of_rooms,Sint* year,Sint*month,Sint* day)
 {
-    BYTE Mask = 0xF0;
-    BYTE currByte = 0 ;
-    fread(&currByte,sizeof (BYTE),1,f);
-    BYTE temp = (Mask & currByte);
-    temp >>= 4;
-    *num_of_rooms = temp;
-    fseek(f,2,SEEK_CUR);
+    int ri = 0 ;
+    BYTE* BYTES = (BYTE*)check_malloc(sizeof(BYTE)*3);  /*{B1: nnnn dddd } {B2: dmmm myyy } {B3: yyyy 0000 } */
+    BYTE currByte;
+    fread(BYTES,sizeof(BYTE),3,f);
 
+    currByte = BYTES[ri++];
+    *num_of_rooms = (0xF0 & currByte ) >> 4;
+
+    *day = (0x0F & currByte);
+    *day <<= 1;
+    currByte = BYTES[ri++] ;
+    if( isBitISet(currByte,7) )
+        *day|= 0x01;
+
+    *month = ( 0x78 & currByte) >> 3 ;
+
+    *year = (0x07 & currByte) << 4 ;
+    currByte = BYTES[ri] >> 4 ;
+    *year |= currByte;
+
+    free(BYTES);
 }
-
-/* day -  00000000 000XXXXX */
-/* month -  00000000 0000XXXX */
-/* year -  00000000 0XXXXXXX */

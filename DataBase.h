@@ -77,7 +77,8 @@ typedef struct CListNode{      /* commands singly linked list nodes  */
 /* Functions Implementation */
 
 //void InitializeDataBase(List *lst,List* lstPrice,char** short_term_history,CList* history);
-Apt* AllocateApt(char* line);
+Apt *AllocateApt (Sint code, Sint len, Sint day, Sint month, Sint year, Sint num_of_rooms, int price, char* address, time_t EntryToDB);
+Apt* getAptParameters(char* line, int currCode);
 LNode *AllocateLNode(Apt *apt);
 void InitializeList(List* list);
 void InitializeClist(CList* Clst);
@@ -109,4 +110,6 @@ void DeleteFromBeginningOfCList(CList *list);
 void DeallocateCListcell(CLnode *cell);
 void PrintCList(CList *list);
 void PrintShortHArray(char **array, CList *list);
+void ClearShortTermHistory(char *short_term_history[N]);
+void ClearDB(CList *history, char *short_term_history[N], List *lst, List *lstPrice);
 #endif //PROJECT_DATABASE_H

@@ -4,8 +4,8 @@
 #include "DataBase.h"
 #include "Reconstraction.h"
 
-void TestProject(List* lst,List* lstPrice,char* short_term_history[] ,CList *history);
-void TestProjectAfterFiles(List* lst,List* lstPrice,char* short_term_history[] ,CList *history);
+void Test1(List* lst,List* lstPrice,char* short_term_history[] ,CList *history);
+void Test2(List* lst,List* lstPrice,char* short_term_history[] ,CList *history);
 void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history);
 
 /* ===== FIND FUNCTIONS =====*/
@@ -31,7 +31,6 @@ BOOL InTimeRange(Apt* apt,int days_ago);
 int collectDaysRange(char* line);
 
 /* ===== EXIT FUNCTIONS =====*/
-void exitProg();
-
+void exitProg(CList *history,char** shortHistory,List* lstByCode,List* lstByPrice);
 
 #endif //PROJECT_MAIN_COMMANDS_H

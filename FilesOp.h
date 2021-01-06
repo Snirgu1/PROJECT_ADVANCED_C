@@ -2,6 +2,7 @@
 #define PROJECT_ADVANCED_C_FILESOP_H
 #include "DataBase.h"
 #include "Reconstraction.h"
+#include "Other.h"
 
 void WriteHistoryToFile(CList* lst_history, char* shortHistory[]);          /* writing history to txt file */
 void WriteCListToFile(FILE* f,CList *lst_history);                          /* writing Cmd list to txt file */

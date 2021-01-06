@@ -2,68 +2,86 @@
 #include "Reconstraction.h"
 
 
-void TestProject(List* lst,List* lstPrice,char* short_term_history[] ,CList *history)
+void Test1(List* lst,List* lstPrice,char* short_term_history[] ,CList *history)
 {
     printf("Please enter one of the following commands:\nadd-apt, find-apt, buy-apt, delete-apt or exit\n");
     printf("For reconstruction commands, please enter:\n!!, !num, history, short_history or !num^str1^str2\n");
-    char* temp;
+    char* temp = NULL;
+
     temp = "add-apt \"Dizengoff 180 Tel Aviv\" 2000000 4 28 09 20";
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "add-apt \"Rothschild 67 Rishon Le Zion\" 1700000 3 03 10 20";
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "add-apt \"Ben Gurion 25 Herzliya\" 2200000 5 01 08 20";
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "add-apt \"Gordon 85 Holon\" 1500000 3 15 06 21";
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "find-apt -MinNumRooms 3 -MaxNumRooms 5 -MaxPrice 1750000 -s";
-    printf("\n%s\n", temp);
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "find-apt -MinNumRooms 4 -sr";
-    printf("\n%s\n", temp);
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "find-apt -MaxNumRooms 5 -s";
-    printf("\n%s\n", temp);
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "buy-apt 2";
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "history";
-    printf("\n%s\n", temp);
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "!5^5^6";
-    printf("\n%s\n", temp);
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "!3^Ben Gurion^David Ben Gurion";
-    printf("\n%s\n", temp);
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "short_history";
-    printf("\n%s\n", temp);
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "!6";
-    printf("\n%s\n", temp);
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "!!";
-    printf("\n%s\n", temp);
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
     temp = "find-apt -Date 01102020 -sr";
-    printf("\n%s\n", temp);
+    printf(">> %s\n",temp);
+    checkCommand(temp, lst, lstPrice,short_term_history, history);
+    temp = "exit";
+    printf(">> %s\n",temp);
     checkCommand(temp, lst, lstPrice,short_term_history, history);
 }
 
-void TestProjectAfterFiles(List* lst,List* lstPrice,char* short_term_history[] ,CList *history)
+void Test2(List* lst,List* lstPrice,char* short_term_history[] ,CList *history)
 {
-    char* temp ;
+    printf("Please enter one of the following commands:\nadd-apt, find-apt, buy-apt, delete-apt or exit\n");
+    printf("For reconstruction commands, please enter:\n!!, !num, history, short_history or !num^str1^str2\n");
+    char* temp = NULL;
     temp = "history";
+    printf(">> %s\n",temp);
     checkCommand(temp,lst,lstPrice,short_term_history,history);
     temp = "add-apt \"Moshe Dayan 4 Eilat\" 1300000 4 27 08 20";
+    printf(">> %s\n",temp);
     checkCommand(temp,lst,lstPrice,short_term_history,history);
-    temp = "find-apt -MaxPrice 2250000 –sr";
+    temp = "find-apt -MaxPrice 2250000 -sr";
+    printf(">> %s\n",temp);
     checkCommand(temp,lst,lstPrice,short_term_history,history);
     temp = "short_history";
+    printf(">> %s\n",temp);
     checkCommand(temp,lst,lstPrice,short_term_history,history);
     temp = "history";
+    printf(">> %s\n",temp);
+    checkCommand(temp,lst,lstPrice,short_term_history,history);
+    temp = "exit";
+    printf(">> %s\n",temp);
     checkCommand(temp,lst,lstPrice,short_term_history,history);
 }
-
 
 /* comparing the first letter of the line to decide which command to active */
 void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history) // checking first letter of the line to decide which command
@@ -85,7 +103,9 @@ void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHis
         recordHistory(line, shortHistory, history);
     }
     else if(line[0] == 'e')
-        exitProg();
+    {
+        exitProg(history,shortHistory,lstByCode,lstByPrice);
+    }
     else if(line[0] == 'h')
     {
         PrintCList(history);
@@ -98,9 +118,12 @@ void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHis
 }
 
 /* exit the program */
-void exitProg()
+void exitProg(CList *history,char** shortHistory,List* lstByCode,List* lstByPrice)
 {
-    exit(EXIT_PROG);
+    WriteHistoryToFile(history,shortHistory);                                         /* writing history to txt file */
+    WriteDatabaseToBinFile(lstByCode);                                                /* writing apartments DB to Bin file */
+    ClearDB(history, shortHistory,lstByCode,lstByPrice);
+    printf("Good Bye!\n");
 }
 
 /* ========================================== FIND AND DELETE FUNCTIONS ==========================================*/
@@ -193,7 +216,7 @@ void collectKeysSearch(char* line,Find_keys *keys)
     char* temp = strdup(line);
     char delim[NUM_OF_DELIM] = {' ','-'};
     char* findByCommands[NUM_OF_FIND_COMMANDS] = {"MinNumRooms","MaxNumRooms","MaxPrice","MinPrice","Date","Enter","s","sr"};
-    char* token;
+    char* token = NULL;
 
     keys->lastXdays_enter = keys -> minP = keys->minR  = keys->order = INITIAL;
     keys->year = keys->month = keys->day = INITIAL;
@@ -279,7 +302,8 @@ void deleteApt(char *line  ,List *lstByPrice, List *lstByCode)
 {
     int days_ago = collectDaysRange(line);
     LNode *curr = lstByCode->tail;
-
+    if(!curr)
+        return;
     while(curr != NULL)
     {
         if(InTimeRange(curr->apartment,days_ago))
@@ -296,7 +320,10 @@ void deleteApt(char *line  ,List *lstByPrice, List *lstByCode)
 /* creates new apartment and adding it to both lists */
 void addApt(char* line, List* lstByCode, List* lstByPrice)
 {
-    Apt *apt1 = AllocateApt(line);
+    int currCode = 0;
+    if(lstByCode->tail != NULL)
+        currCode = lstByCode->tail->apartment->code;
+    Apt *apt1 = getAptParameters(line, currCode);
     if(lstByCode->head == NULL)
         AddToEmptyList(lstByCode, AllocateLNode(apt1));
     else

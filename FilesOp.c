@@ -1,13 +1,11 @@
 #include "FilesOp.h"
 
+
+/* writing History to txt file - HistoryDoc.txt */
 void WriteHistoryToFile(CList* lst_history, char* shortHistory[])
 {
     FILE *f = fopen("HistoryDoc.txt","w");
-    if(!f)
-    {
-        fprintf(stderr,"open txt file \"HistoryDoc.txt\" failed\n");
-        exit(FILE_ERROR);
-    }
+    check_file(f);
     if(lst_history->head == NULL )    /* if database B (Cmd LIST) is empty , write only database A (shortTerm) to file */
     {
         WriteCmdArrToFile(f,shortHistory,1);
@@ -19,18 +17,23 @@ void WriteHistoryToFile(CList* lst_history, char* shortHistory[])
     }
     fclose(f);
 }
+
+/* writing commands list (Maagar B) to txt file - HistoryDoc.txt */
 void WriteCListToFile(FILE* f,CList *lst_history)
 {
-    CLnode *curr = lst_history->head ;
+    CLnode *curr = lst_history->head;
     while(curr != NULL)
     {
         fprintf(f,"%d: %s\n",curr->commandNum, curr->command);
         curr = curr->next;
     }
 }
+
+/* writing commands array (Maagar A) to txt file - HistoryDoc.txt */
 void WriteCmdArrToFile(FILE* f,char* shortHistory[],int start_ind)
 {
     int  i = 0 ;
+//    char end = EOF ;
     int curr_cmd_ind = start_ind;
     while( shortHistory[i] != NULL && i < 7 )
     {
@@ -38,6 +41,7 @@ void WriteCmdArrToFile(FILE* f,char* shortHistory[],int start_ind)
         curr_cmd_ind++;
         i++;
     }
+//    fprintf(f,"%c",end);
 }
 
 /* get history from txt file in start of project */
@@ -45,23 +49,20 @@ void getHistoryFromFile(char* short_term_history[] ,CList* history)
 {
     int num;
     int offset;
+    char ch = 0;
     char *temp = NULL;
     FILE *f = fopen("HistoryDoc.txt","r");
     if(!f)
-    {
-        fprintf(stderr,"File could not be opened to retrieve your data from it.\n");
         return;
-    }
-    while( fgetc(f) != EOF )
+
+    while( ch != EOF )
     {
         fseek(f,-1,SEEK_CUR);
         temp = get_line(f);
-        if(strcmp(temp,"\n") != 0 )
-        {
-            sscanf(temp,"%d",&num);
-            offset = checkNumLength(num) + 2;
-            recordHistory(temp+offset,short_term_history,history);
-        }
+        sscanf(temp,"%d",&num);
+        offset = checkNumLength(num) + 2;
+        recordHistory(temp+offset,short_term_history,history);
+        ch = fgetc(f);
     }
     fclose(f);
 }
@@ -71,19 +72,22 @@ char* get_line(FILE* f)
 {
     char ch = ' ';
     int l_size = 0, p_size = 2;
-    char* line = (char*)malloc(sizeof(char)*p_size);
-    while( ch != '\n')
+    char* line = (char*)check_malloc(sizeof(char)*p_size);
+    while( (ch = fgetc(f)) != '\n')
     {
-        ch = (char)fgetc(f);
         line[l_size] = ch;
         l_size++;
         if(l_size == p_size)
         {
             p_size *= 2;
             line = (char*)realloc(line,p_size);
+            if(!line)
+                exit(MEM_ALLOC_ERR);
         }
     }
     line = (char*)realloc(line,l_size+1);
+    if(!line)
+        exit(MEM_ALLOC_ERR);
     line[l_size] = '\0';
     return line;
 }
@@ -93,15 +97,12 @@ void WriteDatabaseToBinFile(List* lst)
 {
     LNode *curr ;
     FILE * f = fopen("DB_Binfile.bin","wb");
-    if(!f)
-    {
-        fprintf(stderr,"error openeing file, exiting...\n");
-        exit(FILE_ERROR);
-    }
+    check_file(f);
     int num_of_apts = getSize(lst);
     fwrite(&num_of_apts, sizeof(int),1, f);
     for( curr = lst->head ;  curr != NULL ; curr = curr->next )
         WriteAptToBinFile(f,curr);
+
     fclose(f);
 }
 
@@ -221,15 +222,17 @@ BOOL isBitISet(BYTE ch, int i)
         return TRUE;
 }
 
+/* received bin file with, read it and returns apt according to info*/
 Apt *ReadSingleAptBin(FILE *f)
 {
     Sint code,len,day,month,year,num_of_rooms ;
     int price;
     char* address;
     time_t EntryToDB ;
-    Apt* apt = check_malloc(sizeof(Apt));
+    Apt* apt = NULL;
 
     fread(&code,sizeof(Sint),1,f);
+
     fread(&len,sizeof(Sint),1,f);
     address =(char*)check_malloc(sizeof(char)*len);
     fread(address,sizeof(BYTE),len,f);
@@ -237,32 +240,18 @@ Apt *ReadSingleAptBin(FILE *f)
     fread(&price,sizeof(int),1,f);
     fread(&EntryToDB,sizeof(time_t),1,f);
     getRoomsAndDate(f,&num_of_rooms,&year,&month,&day);
-    printf("\ncode: %d\n", code);
-    printf("len: %d\n", len);
-    printf("address: %s\n", address);
-    printf("price: %d\n", price);
-    printf("EntryToDB: %ld\n", EntryToDB);
-    printf("Entry date is: %d.%d.%d\n",day,month,year);
-    apt->year = year;
-    apt->month = month;
-    apt->day = day;
-    apt->num_of_rooms = num_of_rooms;
-    apt->address = address;
-    apt->Database_entry_date = EntryToDB;
-    apt->price = price;
-    apt->code = code++;
+    apt = AllocateApt(code, len, day, month, year, num_of_rooms, price, address, EntryToDB);
     return apt;
 }
 
+/* reading Bin file and updating lists according to file info */
 void ReadBinFile(char* fname, List* lstByCode, List* lstByPrice)
 {
     int num_of_apts,i = 0;
     FILE* f = fopen(fname, "rb");
     if(!f)
-        exit(FILE_ERROR);
-
+        return;
     fread(&num_of_apts,sizeof(int),1,f);
-    printf("\nSTART READING BIN FILE %d apartments total \n",num_of_apts);
     while( i < num_of_apts )
     {
         Apt* apt = ReadSingleAptBin(f);
@@ -271,11 +260,10 @@ void ReadBinFile(char* fname, List* lstByCode, List* lstByPrice)
         else
             AddToEndOfList(lstByCode, AllocateLNode(apt));
         AddToListByPrice(lstByPrice, apt);
-        /* need to insert apt to DB somehow - WAITING FOR CHECK WITH IDAN */
         i++;
     }
+    fclose(f);
 }
-
 
 /* The function gets 3B array and collect apt's num_of_rooms and Entry date (   bits ->TO-> actual_val ) */
 void getRoomsAndDate(FILE* f,Sint* num_of_rooms,Sint* year,Sint*month,Sint* day)

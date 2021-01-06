@@ -1,10 +1,12 @@
 #include "Reconstraction.h"
+
 static int commandNum = 1;
+static int i = 0;
 
 void checkReconstraction(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history)
 {
-    int len ;
-    int num ;
+    int len;
+    int num;
     if(line[0] == '!')
         checkCommand(shortHistory[6], lstByCode, lstByPrice, shortHistory, history);
     else
@@ -36,23 +38,29 @@ void switchCommand(char *line, char *command, List *lstByCode, List *lstByPrice,
         checkCommand(command, lstByCode, lstByPrice, shortHistory, history);
         return;
     }
-    char *newCommand, *newParameter, *oldParameter, *location, *temp;
-    temp = strdup(line);
-    oldParameter = strtok(temp, "^");
+    char *newCommand, *newParameter, *oldParameter, *temp, *currCommand,*tempLine;
+    tempLine = strdup(line);
+    oldParameter = strtok(tempLine, "^");
     newParameter = strtok(NULL, "^");
-    if(oldParameter == NULL)
-    {
-        checkCommand(command, lstByCode, lstByPrice, shortHistory, history);
-        free(temp);
-        return;
+    temp = strstr(command, oldParameter);
+    newCommand = (char*)check_malloc(strlen(command) - strlen(oldParameter) + strlen(newParameter));
+    strncpy(newCommand, command, strlen(command) - strlen(temp));
+    while(temp != NULL) {
+        currCommand = strdup(temp+strlen(oldParameter));
+        newCommand[strlen(command) - strlen(temp)] = '\0';
+        temp = strstr(temp + strlen(oldParameter), oldParameter);
+        strcat(newCommand, newParameter);
+        if(temp != NULL && temp[strlen(oldParameter)] == ' ')
+            strncat(newCommand, currCommand, strlen(currCommand) - strlen(temp));
+        else if (temp != NULL){
+            temp = strstr(temp + strlen(oldParameter), oldParameter);
+            if(temp != NULL)
+                strncat(newCommand, currCommand, strlen(currCommand) - strlen(temp));
+        }
     }
-    newCommand = (char*)check_malloc(strlen(command)+strlen(newParameter)-strlen(oldParameter));
-    location = strstr(command, oldParameter);
-    strncpy(newCommand, command, strlen(command)-strlen(location));
-    strcpy(newCommand+strlen(command)-strlen(location), newParameter);
-    strcat(newCommand, location+strlen(oldParameter));
+    strcat(newCommand, currCommand);
     checkCommand(newCommand, lstByCode, lstByPrice, shortHistory, history);
-    free(temp);
+    free(tempLine);
 }
 
 void findCommand(char *line, int num, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history)
@@ -82,19 +90,16 @@ void InitializeSHistory(char** shortHistory)
 
 void recordHistory(char* line, char** shortHistory, CList* history)
 {
-    static int ind = 0;
     int j, k;
-    if(ind != 7){
-        shortHistory[ind] = strdup(line);
+    if(i != 7){
+        shortHistory[i] = strdup(line);
         commandNum++;
-        ind++;
+        i++;
     }
     else{
         AddToCList(history, shortHistory[0]);
-        for (j = 0, k = 1; j <= 5 ; j++, k++)
-        {
-            shortHistory[j] = strdup(shortHistory[k]);
-        }
+        for (j = 0, k = 1; j < 6; j++, k++)
+            shortHistory[j] = shortHistory[k];
         shortHistory[6] = strdup(line);
         commandNum++;
     }

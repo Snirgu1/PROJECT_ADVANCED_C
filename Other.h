@@ -1,8 +1,7 @@
-#ifndef PROJECT_ADVANCED_C_OTHER_H
-#define PROJECT_ADVANCED_C_OTHER_H
-#include "DataBase.h"
+#ifndef PROJECT_OTHER_H
+#define PROJECT_OTHER_H
+#include <stdio.h>
 
-
-void AllocError();
-
+void* check_malloc (int num_of_bytes);
+void check_file (FILE *file);
 #endif

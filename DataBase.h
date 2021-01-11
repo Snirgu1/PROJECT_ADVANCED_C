@@ -9,10 +9,10 @@
 
 /* Define and MACROS */
 #define Uchar unsigned char
-#define Uint unsigned int
 #define Sint short int
 #define N 7
 #define MEM_ALLOC_ERR (-1)
+#define FILE_ERROR (-2)
 #define NUM_OF_DELIM 3
 #define NUM_OF_FIND_COMMANDS 8
 #define INCREASE 1
@@ -22,11 +22,10 @@
 #define TRUE 1
 #define MAXROOMS 15
 #define FALSE 0
-#define EXIT_PROG 1
 #define BOOL int
-#define FILE_ERROR 1
 #define BYTE unsigned char
-
+#define PRICELIST 3
+#define CODELIST 2
 
 /* Data structure implementation */
 
@@ -39,8 +38,6 @@ typedef struct FindKeys{
     int maxP;
     int minP;
 }Find_keys;
-
-
 
 typedef struct Apartment{        /* apartment details */
     int code ;
@@ -75,35 +72,27 @@ typedef struct CListNode{      /* commands singly linked list nodes  */
 }CLnode;
 
 /* Functions Implementation */
-
-//void InitializeDataBase(List *lst,List* lstPrice,char** short_term_history,CList* history);
 Apt *AllocateApt (Sint code, Sint len, Sint day, Sint month, Sint year, Sint num_of_rooms, int price, char* address, time_t EntryToDB);
 Apt* getAptParameters(char* line, int currCode);
 LNode *AllocateLNode(Apt *apt);
 void InitializeList(List* list);
-void InitializeClist(CList* Clst);
-void AddToEmptyList (List *list, LNode *node);
+void AddToEmptyList (List *list,CList *Clist, LNode *node, CLnode *Cnode);
 void AddToBeginningOfList (List *list, LNode *node);
-void AddToEndOfList (List *list, LNode *node);
+void AddToEndOfList(List *list, LNode *node, CList *Clist, CLnode *Cnode);
 void AddToInnerPlaceInList (LNode *prev, LNode *node);
 LNode* FindPlaceToInsertByPrice(List *list, Apt* apt);
 void AddToListByPrice (List *list, Apt* apt);
-void DeleteFromInnerPlaceInList(LNode *prev);
-void DeleteFromInnerPlaceInPriceList(LNode *prev);
+void DeleteFromInnerPlaceInList(LNode *prev, int flag);
 void DeallocateListNode(LNode *node);
-void DeleteFromBeginningOfList(List *list);
-void DeleteFromBeginningOfPriceList(List *list);
-void DeleteFromEndOfList(List *list);
-void DeleteFromEndOfPriceList(List *list);
+void DeleteFromBeginningOfList(List *list, int flag);
+void DeleteFromEndOfList(List *list, int flag);
 void DeleteFromList (List *list, List *listByPrice, int code);
 void DeleteFromPriceList(List *list, LNode *prev);
 LNode *FindPlaceToDeleteByCode(List *list, int code);
-void PrintList(List *list);
 void PrintData(Apt *apt);
 void ClearList(List *list);
-void* check_malloc (int num_of_bytes);
-void DeleteFromBeginningOfPList(List *list);
 CLnode* AllocateCLnode(char* command);
+void InitializeClist(CList* Clst);
 void AddToCList(CList *list, char* command);
 void ClearCList(CList *list);
 void DeleteFromBeginningOfCList(CList *list);
@@ -112,4 +101,7 @@ void PrintCList(CList *list);
 void PrintShortHArray(char **array, CList *list);
 void ClearShortTermHistory(char *short_term_history[N]);
 void ClearDB(CList *history, char *short_term_history[N], List *lst, List *lstPrice);
+void* check_malloc (int num_of_bytes);
+void check_file (FILE *file);
+void InitializeDataBase(List *lst,List* lstPrice,char** short_term_history,CList* history);
 #endif //PROJECT_DATABASE_H

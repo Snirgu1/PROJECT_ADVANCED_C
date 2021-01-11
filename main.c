@@ -1,6 +1,6 @@
 #include "main_commands.h"
 
-int main( )
+int main()
 {
     List lst,lstPrice;
     CList history;
@@ -11,7 +11,7 @@ int main( )
     ReadBinFile("DB_Binfile.bin",&lst,&lstPrice);                           /* Read bin file and set info from it to DB */
     getHistoryFromFile(short_term_history,&history);                              /* Read txt file and set project History from it */
 
-    printf("\nFIRST TIME RUNING PROJECT ?\nPRESS Y / N  FOR ANSWER ?\n");
+    printf("\nFIRST TIME RUNNING PROJECT ?\nPRESS Y / N  FOR ANSWER ?\n");
     scanf("%c",&ans);
     if(ans == 'Y' || ans == 'y' )
         Test1(&lst,&lstPrice,short_term_history,&history);                    /* Test part one - first run */

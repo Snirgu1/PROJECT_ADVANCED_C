@@ -1,7 +1,14 @@
-#include "DataBase.h"
-#include "Reconstraction.h"
+#include "main_commands.h"
 static int commandCounter = 1;
 // to follow the last apt code
+
+void InitializeDataBase(List *lst,List* lstPrice,char** short_term_history,CList* history)
+{
+    InitializeList(lst);
+    InitializeList(lstPrice);
+    InitializeSHistory(short_term_history);
+    InitializeClist(history);
+}
 
 /* allocating new apartment and initializing the parameters by the line */
 Apt* getAptParameters(char* line, int currCode)
@@ -55,8 +62,7 @@ LNode *AllocateLNode(Apt *apt)
 /* allocation command list node ( for Command List - Maagar B )*/
 CLnode* AllocateCLnode(char* command)
 {
-    CLnode *res;
-    res = (CLnode*)check_malloc(sizeof(CLnode));
+    CLnode *res = (CLnode*)check_malloc(sizeof(CLnode));
     res->next = NULL;
     res->command = command;
     res->commandNum = commandCounter;
@@ -85,9 +91,12 @@ void InitializeList(List* list)
 }
 
 /* add to list functions */
-void AddToEmptyList (List *list, LNode *node)
+void AddToEmptyList (List *list,CList *Clist, LNode *node, CLnode *Cnode)
 {
-    list->head = list->tail = node;
+    if(list != NULL)
+        list->head = list->tail = node;
+    if(Clist != NULL)
+        Clist->head = Clist->tail = Cnode;
 }
 void AddToBeginningOfList (List *list, LNode *node)
 {
@@ -95,11 +104,18 @@ void AddToBeginningOfList (List *list, LNode *node)
     list->head->prev = node;
     list->head = node;
 }
-void AddToEndOfList (List *list, LNode *node)
+void AddToEndOfList(List *list, LNode *node, CList *Clist, CLnode *Cnode)
 {
-    node->prev = list->tail;
-    list->tail->next = node;
-    list->tail = node;
+    if(Clist == NULL) {
+        node->prev = list->tail;
+        list->tail->next = node;
+        list->tail = node;
+    }
+    else if(list == NULL)
+    {
+        Clist->tail->next = Cnode;
+        Clist->tail = Cnode;
+    }
 }
 void AddToInnerPlaceInList (LNode *prev, LNode *node)
 {
@@ -114,13 +130,13 @@ void AddToListByPrice (List *list, Apt* apt)
     LNode* node = AllocateLNode(apt);
 
     if(list->head == NULL)
-        AddToEmptyList(list, node);
+        AddToEmptyList(list,NULL, node, NULL);
     else{
         prev = FindPlaceToInsertByPrice(list, apt);
         if(prev == NULL)
             AddToBeginningOfList(list, node);
         else if (prev == list->tail)
-            AddToEndOfList(list, node);
+            AddToEndOfList(list, node, NULL, NULL);
         else
             AddToInnerPlaceInList(prev, node);
     }
@@ -138,143 +154,101 @@ LNode *FindPlaceToDeleteByCode(List *list, int code)
     }
     return prev;
 }
-void DeleteFromInnerPlaceInList(LNode *prev)
+void DeleteFromInnerPlaceInList(LNode *prev, int flag)
 {
     LNode *node = prev->next;
 
     prev->next = node->next;
     node->next->prev = prev;
-    DeallocateListNode(node);
-}
-void DeleteFromInnerPlaceInPriceList(LNode *prev)
-{
-    LNode *node = prev->next;
-
-    prev->next = node->next;
-    node->next->prev = prev;
-    free(node);
+    if(flag == CODELIST)
+        DeallocateListNode(node);
+    else if(flag == PRICELIST)
+        free(node);
 }
 void DeallocateListNode(LNode *node)
 {
     free(node->apartment);
     free(node);
 }
-void DeleteFromBeginningOfList(List *list)
+void DeleteFromBeginningOfList(List *list, int flag)
 {
     list->head = list->head->next;
     if(list->head == NULL)
     {
-        DeallocateListNode(list->tail);
+        if(flag == CODELIST)
+            DeallocateListNode(list->tail);
+        else if(flag == PRICELIST)
+            free(list->tail);
         list->tail = NULL;
     }
     else
     {
-        DeallocateListNode(list->head->prev);
+        if(flag == CODELIST)
+            DeallocateListNode(list->head->prev);
+        else if(flag == PRICELIST)
+            free(list->head->prev);
         list->head->prev = NULL;
     }
 }
-void DeleteFromBeginningOfPriceList(List *list)
-{
-    list->head = list->head->next;
-    if(list->head == NULL)
-    {
-        free(list->tail);
-        list->tail = NULL;
-    }
-    else
-    {
-        free(list->head->prev);
-        list->head->prev = NULL;
-    }
-}
-void DeleteFromEndOfList(List *list)
+void DeleteFromEndOfList(List *list, int flag)
 {
     if(list->tail == list->head) //assume list is not empty
     {
-        DeallocateListNode(list->tail);
+        if(flag == CODELIST)
+            DeallocateListNode(list->tail);
+        else if(flag == PRICELIST)
+            free(list->tail);
         list->tail = list->head = NULL;
         return;
     }
     list->tail = list->tail->prev;
-    DeallocateListNode(list->tail->next);
-    list->tail->next = NULL;
-}
-void DeleteFromEndOfPriceList(List *list)
-{
-    if(list->tail == list->head) //assume list is not empty
-    {
-        free(list->tail);
-        list->tail = list->head = NULL;
-        return;
-    }
-    list->tail = list->tail->prev;
-    free(list->tail->next);
+    if(flag == CODELIST)
+        DeallocateListNode(list->tail->next);
+    else if(flag == PRICELIST)
+        free(list->tail->next);
     list->tail->next = NULL;
 }
 void DeleteFromList (List *list, List *listByPrice, int code)
 {
     LNode *prevC, *prevP;
     if(list->head == NULL)
-        fprintf(stderr, "List is empty, cannot delete ; \n");
+        printf("List is empty, cannot delete!\n");
     else
     {
         prevC = FindPlaceToDeleteByCode(list, code);
         prevP = FindPlaceToDeleteByCode(listByPrice, code);
-
         if(prevC == list->tail)
         {
-            fprintf(stderr, "not found! \n");
+            printf("not found!\n");
             return;
         }
-        if(prevC == NULL )
-            DeleteFromBeginningOfList(list);
+        if(prevC == NULL)
+            DeleteFromBeginningOfList(list, CODELIST);
         else if(prevC->next == list->tail)
-            DeleteFromEndOfList(list);
+            DeleteFromEndOfList(list, CODELIST);
         else
-            DeleteFromInnerPlaceInList(prevC);
+            DeleteFromInnerPlaceInList(prevC, CODELIST);
         DeleteFromPriceList(listByPrice, prevP);
     }
 }
 void DeleteFromPriceList(List *list, LNode *prev)
 {
     if(prev == NULL)
-        DeleteFromBeginningOfPriceList(list);
+        DeleteFromBeginningOfList(list, PRICELIST);
     else if(prev->next == list->tail)
-        DeleteFromEndOfPriceList(list);
+        DeleteFromEndOfList(list, PRICELIST);
     else
-        DeleteFromInnerPlaceInPriceList(prev);
-}
-void DeleteFromBeginningOfPList(List *list)
-{
-    while(list->head) {
-        list->head = list->head->next;
-        if (list->head == NULL) {
-            free(list->tail);
-            list->tail = NULL;
-        } else {
-            free(list->head->prev);
-            list->head->prev = NULL;
-        }
-    }
+        DeleteFromInnerPlaceInList(prev, PRICELIST);
 }
 
 /* Add to Command List functions */
-void AddToEmptyCList(CList *list, CLnode *cell)
-{
-    list->head = list->tail = cell;
-}
-void AddToEndOfCList(CList *list, CLnode *cell)
-{
-    list->tail->next = cell;
-    list->tail = cell;
-}
 void AddToCList(CList *list, char* command)
 {
     CLnode *cell = AllocateCLnode(command);
     if(list->head == NULL)
-        AddToEmptyCList(list, cell);
+        AddToEmptyList(NULL, list, NULL, cell);
     else
-        AddToEndOfCList(list, cell);
+        AddToEndOfList(NULL, NULL, list, cell);
 }
 
 /* delete from Command List functions */
@@ -318,9 +292,7 @@ void PrintShortHArray(char **array, CList *list)
 }
 void PrintData(Apt *apt) // printing the apartment details
 {
-    apt->Database_entry_date = time(NULL);
     struct tm tm = *localtime(&apt->Database_entry_date);
-
     printf("Apt details:\n");
     printf("Code: %d\n", apt->code);
     printf("Address: %s\n", apt->address);
@@ -340,7 +312,7 @@ void InitializeClist(CList* Clst)
 void ClearList(List *list)
 {
     while(list->head)
-        DeleteFromBeginningOfList(list);
+        DeleteFromBeginningOfList(list, CODELIST);
 }
 void ClearCList(CList *list)
 {
@@ -360,5 +332,25 @@ void ClearDB(CList *history, char *short_term_history[N], List *lst, List *lstPr
     ClearCList(history);
     ClearShortTermHistory(short_term_history);
     ClearList(lst);
-    DeleteFromBeginningOfPList(lstPrice);// the apt is already deallocated so only deallocating the node
+    DeleteFromBeginningOfList(lstPrice, PRICELIST);// the apt is already deallocated so only deallocating the node
+}
+
+void* check_malloc (int num_of_bytes)
+{
+    void* new_arr;
+    new_arr = malloc(num_of_bytes);
+    if(new_arr == NULL)
+    {
+        printf("ERROR\n");
+        exit(MEM_ALLOC_ERR);
+    }
+    return new_arr;
+}
+void check_file (FILE *file)
+{
+    if(!file)
+    {
+        printf("error - open file to use has failed\n");
+        exit(FILE_ERROR);
+    }
 }

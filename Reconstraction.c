@@ -1,4 +1,4 @@
-#include "Reconstraction.h"
+#include "main_commands.h"
 
 static int commandNum = 1;
 static int i = 0;
@@ -8,7 +8,7 @@ void checkReconstraction(char* line, List* lstByCode, List* lstByPrice, char** s
     int len;
     int num;
     if(line[0] == '!')
-        checkCommand(shortHistory[6], lstByCode, lstByPrice, shortHistory, history);
+        checkCommand(shortHistory[i-1], lstByCode, lstByPrice, shortHistory, history);
     else
     {
         num = atoi(line);
@@ -23,7 +23,7 @@ void checkReconstraction(char* line, List* lstByCode, List* lstByPrice, char** s
 int checkNumLength(int num)
 {
     int  counter = 1 ;
-    while( num > 10 )
+    while( num >= 10 )
     {
         counter++;
         num= num/10;
@@ -44,22 +44,29 @@ void switchCommand(char *line, char *command, List *lstByCode, List *lstByPrice,
     newParameter = strtok(NULL, "^");
     temp = strstr(command, oldParameter);
     newCommand = (char*)check_malloc(strlen(command) - strlen(oldParameter) + strlen(newParameter));
-    strncpy(newCommand, command, strlen(command) - strlen(temp));
-    while(temp != NULL) {
-        currCommand = strdup(temp+strlen(oldParameter));
-        newCommand[strlen(command) - strlen(temp)] = '\0';
-        temp = strstr(temp + strlen(oldParameter), oldParameter);
-        strcat(newCommand, newParameter);
-        if(temp != NULL && temp[strlen(oldParameter)] == ' ')
-            strncat(newCommand, currCommand, strlen(currCommand) - strlen(temp));
-        else if (temp != NULL){
+    if(temp != NULL) {
+        strncpy(newCommand, command, strlen(command) - strlen(temp));
+        while (temp != NULL) {
+            currCommand = strdup(temp + strlen(oldParameter));
+            newCommand[strlen(command) - strlen(temp)] = '\0';
             temp = strstr(temp + strlen(oldParameter), oldParameter);
-            if(temp != NULL)
+            if (newCommand[strlen(command) - strlen(currCommand) - 1] == ' ')
+                strcat(newCommand, newParameter);
+            else
+                strcat(newCommand, oldParameter);
+            if (temp != NULL && temp[strlen(oldParameter)] == ' ')
                 strncat(newCommand, currCommand, strlen(currCommand) - strlen(temp));
+            else if (temp != NULL) {
+                temp = strstr(temp + strlen(oldParameter), oldParameter);
+                if (temp != NULL)
+                    strncat(newCommand, currCommand, strlen(currCommand) - strlen(temp));
+            }
         }
+        strcat(newCommand, currCommand);
+        checkCommand(newCommand, lstByCode, lstByPrice, shortHistory, history);
     }
-    strcat(newCommand, currCommand);
-    checkCommand(newCommand, lstByCode, lstByPrice, shortHistory, history);
+    else
+        checkCommand(command, lstByCode, lstByPrice, shortHistory, history);
     free(tempLine);
 }
 
@@ -103,12 +110,4 @@ void recordHistory(char* line, char** shortHistory, CList* history)
         shortHistory[6] = strdup(line);
         commandNum++;
     }
-}
-
-void InitializeDataBase(List *lst,List* lstPrice,char** short_term_history,CList* history)
-{
-    InitializeList(lst);
-    InitializeList(lstPrice);
-    InitializeSHistory(short_term_history);
-    InitializeClist(history);
 }

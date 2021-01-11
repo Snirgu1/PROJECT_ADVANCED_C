@@ -1,4 +1,5 @@
 #include "main_commands.h"
+static int last_cmd = 0 ;           /* represent the last command that has been received from txt file */
 
 /* ==================================== Static Functions Declarations ====================================*/
 
@@ -20,20 +21,28 @@ static void WriteAptToBinFile(FILE* f,LNode* curr);
 
 /* ==================================== Functions Implementation ====================================*/
 
-
 /* writing History to txt file in the end of the program - HistoryDoc.txt */
 void WriteHistoryToFile(CList* lst_history, char* shortHistory[])
 {
-    FILE *f = fopen("HistoryDoc.txt","w");
+    FILE *f = fopen("HistoryDoc.txt","a");
     check_file(f);
     if(lst_history->head == NULL )    /* if database B (Cmd LIST) is empty , write only database A (shortTerm) to file */
     {
-        WriteCmdArrToFile(f,shortHistory,1);
+        if(last_cmd == 0)
+            WriteCmdArrToFile(f,shortHistory,1);
+        else
+            WriteCmdArrToFile(f,shortHistory,last_cmd+1);
     }
     else                            /* there is more than 7 commands, write the arr and the Clist */
     {
-        WriteCListToFile(f,lst_history);
-        WriteCmdArrToFile(f,shortHistory,lst_history->tail->commandNum + 1);
+        if(lst_history->tail->commandNum - last_cmd < 0 )   /* new cmd only in shortHistory */
+            WriteCmdArrToFile(f,shortHistory,last_cmd - lst_history->tail->commandNum + 1 );
+        else
+        {
+            WriteCListToFile(f,lst_history);
+            WriteCmdArrToFile(f,shortHistory,1);
+        }
+
     }
     fclose(f);
 }
@@ -41,21 +50,33 @@ void WriteHistoryToFile(CList* lst_history, char* shortHistory[])
 /* Read history from txt file in start of the program - HistoryDoc.txt  */
 void getHistoryFromFile(char* short_term_history[] ,CList* history)
 {
-    int num;
-    int offset;
+    int num,offset;
+    long fsize;
     char ch = 0;
     char *temp = NULL;
     FILE *f = fopen("HistoryDoc.txt","r");
     if(!f)
-        return;
-    while( ch != EOF )
     {
-        fseek(f,-1,SEEK_CUR);
-        temp = get_line(f);
-        sscanf(temp,"%d",&num);
-        offset = checkNumLength(num) + 2;
-        recordHistory(temp+offset,short_term_history,history);
-        ch = fgetc(f);
+        f = fopen("HistoryDoc.txt", "w");
+        check_file(f);
+        fclose(f);
+        return;
+    }
+    fseek(f,0,SEEK_END);
+    fsize = ftell(f);
+    fseek(f,0,SEEK_SET);
+    if( fsize!=0 )
+    {
+        while( ch != EOF )
+        {
+            fseek(f,-1,SEEK_CUR);
+            temp = get_line(f);
+            sscanf(temp,"%d",&num);
+            offset = checkNumLength(num) + 2;
+            recordHistory(temp+offset,short_term_history,history);
+            ch = fgetc(f);
+        }
+        last_cmd = num;
     }
     fclose(f);
 }
@@ -67,7 +88,8 @@ void WriteDatabaseToBinFile(List* lst)
     FILE * f = fopen("DB_Binfile.bin","wb");
     check_file(f);
     int num_of_apts = getSize(lst);
-    fwrite(&num_of_apts, sizeof(int),1, f);
+    if(num_of_apts != 0)
+        fwrite(&num_of_apts, sizeof(int),1, f);
     for( curr = lst->head ;  curr != NULL ; curr = curr->next )
         WriteAptToBinFile(f,curr);
 
@@ -78,19 +100,31 @@ void WriteDatabaseToBinFile(List* lst)
 void ReadBinFile(char* fname, List* lstByCode, List* lstByPrice)
 {
     int num_of_apts, i = 0;
+    long fsize;
     FILE* f = fopen(fname, "rb");
     if(!f)
-        return;
-    fread(&num_of_apts,sizeof(int),1,f);
-    while( i < num_of_apts )
     {
-        Apt* apt = ReadSingleAptBin(f);
-        if(lstByCode->head == NULL)
-            AddToEmptyList(lstByCode, NULL, AllocateLNode(apt), NULL);
-        else
-            AddToEndOfList(lstByCode, AllocateLNode(apt), NULL, NULL);
-        AddToListByPrice(lstByPrice, apt);
-        i++;
+        f = fopen(fname, "wb");
+        check_file(f);
+        fclose(f);
+        return;
+    }
+    fseek(f,0,SEEK_END);
+    fsize = ftell(f);
+    fseek(f,0,SEEK_SET);
+    if(fsize != 0 )
+    {
+        fread(&num_of_apts,sizeof(int),1,f);
+        while( i < num_of_apts )
+        {
+            Apt* apt = ReadSingleAptBin(f);
+            if(lstByCode->head == NULL)
+                AddToEmptyList(lstByCode, NULL, AllocateLNode(apt), NULL);
+            else
+                AddToEndOfList(lstByCode, AllocateLNode(apt), NULL, NULL);
+            AddToListByPrice(lstByPrice, apt);
+            i++;
+        }
     }
     fclose(f);
 }
@@ -275,7 +309,11 @@ static void WriteCListToFile(FILE* f,CList *lst_history)
     CLnode *curr = lst_history->head;
     while(curr != NULL)
     {
-        fprintf(f,"%d: %s\n",curr->commandNum, curr->command);
+        if(curr->commandNum > last_cmd )
+        {
+            fprintf(f,"%d: %s\n",curr->commandNum, curr->command);
+            last_cmd++;
+        }
         curr = curr->next;
     }
 }
@@ -283,8 +321,9 @@ static void WriteCListToFile(FILE* f,CList *lst_history)
 /* writing commands array (Maagar A) to txt file - HistoryDoc.txt */
 static void WriteCmdArrToFile(FILE* f,char* shortHistory[],int start_ind)
 {
-    int  i = 0 ;
-    int curr_cmd_ind = start_ind;
+    int  i ;
+    i = start_ind - 1 ;
+    int curr_cmd_ind = last_cmd+1;
     while( shortHistory[i] != NULL && i < 7 )
     {
         fprintf(f,"%d: %s\n",curr_cmd_ind,shortHistory[i]);

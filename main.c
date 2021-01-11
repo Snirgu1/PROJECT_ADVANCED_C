@@ -6,7 +6,6 @@ int main()
     CList history;
     char *short_term_history[N];
     char ans;
-
     InitializeDataBase(&lst,&lstPrice,short_term_history,&history);                /* Initialize required Lists and array */
     ReadBinFile("DB_Binfile.bin",&lst,&lstPrice);                           /* Read bin file and set info from it to DB */
     getHistoryFromFile(short_term_history,&history);                              /* Read txt file and set project History from it */

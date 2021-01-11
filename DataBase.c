@@ -332,7 +332,8 @@ void ClearDB(CList *history, char *short_term_history[N], List *lst, List *lstPr
     ClearCList(history);
     ClearShortTermHistory(short_term_history);
     ClearList(lst);
-    DeleteFromBeginningOfList(lstPrice, PRICELIST);// the apt is already deallocated so only deallocating the node
+    if( lstPrice->head != NULL )
+        DeleteFromBeginningOfList(lstPrice, PRICELIST);// the apt is already deallocated so only deallocating the node
 }
 
 void* check_malloc (int num_of_bytes)

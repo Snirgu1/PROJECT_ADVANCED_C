@@ -1,7 +1,6 @@
 #ifndef PROJECT_MAIN_COMMANDS_H
 #define PROJECT_MAIN_COMMANDS_H
 #include "FilesOp.h"
-
 /* ====== Functions Declarations ======*/
 void Test1(List* lst,List* lstPrice,char* short_term_history[] ,CList *history);
 void Test2(List* lst,List* lstPrice,char* short_term_history[] ,CList *history);

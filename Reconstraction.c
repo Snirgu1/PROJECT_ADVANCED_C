@@ -111,3 +111,4 @@ void recordHistory(char* line, char** shortHistory, CList* history)
         commandNum++;
     }
 }
+

@@ -1,7 +1,7 @@
 #ifndef PROJECT_RECONSTRACTION_H
 #define PROJECT_RECONSTRACTION_H
 #include "DataBase.h"
-//void InitializeDataBase(List *lst,List* lstPrice,char** short_term_history,CList* history);
+/* ====== Functions Declarations ======*/
 void checkReconstraction(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history);
 void InitializeSHistory(char** shortHistory);
 void recordHistory(char* line, char** shortHistory, CList* history);

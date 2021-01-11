@@ -72,6 +72,7 @@ typedef struct CListNode{      /* commands singly linked list nodes  */
 }CLnode;
 
 /* Functions Implementation */
+/* ====== Functions Declarations ======*/
 Apt *AllocateApt (Sint code, Sint len, Sint day, Sint month, Sint year, Sint num_of_rooms, int price, char* address, time_t EntryToDB);
 Apt* getAptParameters(char* line, int currCode);
 LNode *AllocateLNode(Apt *apt);

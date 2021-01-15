@@ -4,143 +4,61 @@
 
 static void collectKeysSearch(char* line,Find_keys *keys);
 static int collectDaysRange(char* line);
-static void findAndPrint(List* price_lst,List* code_lst,Find_keys* keys);
+static void findAndPrint(List* price_lst,Find_keys* keys);
 static BOOL checkAptMatch(Apt* apt,Find_keys* keys);
 static BOOL isEarlier(short int year,short int month ,short int day,Find_keys* keys);
 static BOOL InTimeRange(Apt* apt,int days_ago);
+static void collectDate(const char* date_str,Find_keys* keys);
 
 /* ==================================== Functions Implementation ====================================*/
 
-/* Project test in first run */
-void Test1(List* lst,List* lstPrice,char* short_term_history[] ,CList *history)
-{
-    printf("Please enter one of the following commands:\nadd-apt, find-apt, buy-apt, delete-apt or exit\n");
-    printf("For reconstruction commands, please enter:\n!!, !num, history, short_history or !num^str1^str2\n");
-    char* temp = NULL;
-    temp = "add-apt \"Dizengoff 180 Tel Aviv\" 2000000 4 28 09 20";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "add-apt \"Rothschild 67 Rishon Le Zion\" 1700000 3 03 10 20";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "add-apt \"Ben Gurion 25 Herzliya\" 2200000 5 01 08 20";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "add-apt \"Gordon 85 Holon\" 1500000 3 15 06 21";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "find-apt -MinNumRooms 3 -MaxNumRooms 5 -MaxPrice 1750000 -s";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "find-apt -MinNumRooms 4 -sr";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "find-apt -MaxNumRooms 5 -s";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "buy-apt 2";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "history";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "!5^5^6";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "!3^Ben Gurion^David Ben Gurion";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "short_history";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "!6";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "!!";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "find-apt -Date 01102020 -sr";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-    temp = "exit";
-    printf(">> %s\n",temp);
-    checkCommand(temp, lst, lstPrice,short_term_history, history);
-}
-
-/* Project test in second run and up */
-void Test2(List* lst,List* lstPrice,char* short_term_history[] ,CList *history)
-{
-    printf("Please enter one of the following commands:\nadd-apt, find-apt, buy-apt, delete-apt or exit\n");
-    printf("For reconstruction commands, please enter:\n!!, !num, history, short_history or !num^str1^str2\n");
-    char* temp = NULL;
-    temp = "history";
-    printf(">> %s\n",temp);
-    checkCommand(temp,lst,lstPrice,short_term_history,history);
-    temp = "add-apt \"Moshe Dayan 4 Eilat\" 1300000 4 27 08 20";
-    printf(">> %s\n",temp);
-    checkCommand(temp,lst,lstPrice,short_term_history,history);
-    temp = "find-apt -MaxPrice 2250000 -sr";
-    printf(">> %s\n",temp);
-    checkCommand(temp,lst,lstPrice,short_term_history,history);
-    temp = "short_history";
-    printf(">> %s\n",temp);
-    checkCommand(temp,lst,lstPrice,short_term_history,history);
-    temp = "history";
-    printf(">> %s\n",temp);
-    checkCommand(temp,lst,lstPrice,short_term_history,history);
-    temp = "exit";
-    printf(">> %s\n",temp);
-    checkCommand(temp,lst,lstPrice,short_term_history,history);
-}
-
 /* comparing the first letter of the line to decide which command to active */
-void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history)
+void checkCommand(char* line, List* lstByCode, List* lstByPrice, char** shortHistory, CList* history, int* numOfApts)
 {
-    if(line[0] == 'a') {
-        addApt(line + 9, lstByCode, lstByPrice);
+    if(line[INITIAL] == 'a') {
+        addApt(line + 9, lstByCode, lstByPrice, numOfApts);
         recordHistory(line, shortHistory, history);
     }
-    else if(line[0] == 'f') {
-        find(lstByPrice, lstByCode, line); // need to check which list to send
+    else if(line[INITIAL] == 'f') {
+        find(lstByPrice,line); // need to check which list to send
         recordHistory(line, shortHistory, history);
     }
-    else if(line[0] == 'b') {
-        buyApt(line, lstByCode, lstByPrice);
+    else if(line[INITIAL] == 'b') {
+        buyApt(line, lstByCode, lstByPrice, numOfApts);
         recordHistory(line, shortHistory, history);
     }
-    else if(line[0] == 'd') {
-        deleteApt(line, lstByPrice, lstByCode);
+    else if(line[INITIAL] == 'd') {
+        deleteApt(line, lstByPrice, lstByCode, numOfApts);
         recordHistory(line, shortHistory, history);
     }
-    else if(line[0] == 'e')
-    {
-        exitProg(history,shortHistory,lstByCode,lstByPrice);
-    }
-    else if(line[0] == 'h')
+    else if(line[INITIAL] == 'e')
+        exitProg(history,shortHistory,lstByCode,lstByPrice, numOfApts);
+    else if(line[INITIAL] == 'h')
     {
         PrintCList(history);
         PrintShortHArray(shortHistory, history);
     }
-    else if(line[0] == 's')
+    else if(line[INITIAL] == 's')
         PrintShortHArray(shortHistory, history);
     else
-        checkReconstraction(line+1, lstByCode, lstByPrice,shortHistory, history);
+        checkReconstraction(line+1, lstByCode, lstByPrice,shortHistory, history, numOfApts); // the first char was !
 }
 
 /* Main command - Find - finds apt according to searching values*/
-void find(List* price_lst, List* code_lst, char* line)
+void find(List* price_lst,char* line)
 {
     Find_keys keys;    /* struct to represent the required info to find the required apartments */
     collectKeysSearch(line, &keys);  /* collect search details from command */
-    findAndPrint(price_lst,code_lst,&keys);
+    findAndPrint(price_lst,&keys);
 }
 
 /* Main command - Delete - delete apt according to given values*/
-void deleteApt(char *line  ,List *lstByPrice, List *lstByCode)
+void deleteApt(char *line ,List *lstByPrice, List *lstByCode, int* numOfApts)
 {
     int flag =FALSE;
     int days_ago = collectDaysRange(line);
     LNode *curr = lstByCode->tail;
+
     if(!curr)
     {
         puts("Database is empty ,no values for deletion\n");
@@ -153,40 +71,43 @@ void deleteApt(char *line  ,List *lstByPrice, List *lstByCode)
             DeleteFromList(lstByCode, lstByPrice, curr->apartment->code);
             curr = lstByCode->tail;
             flag = TRUE;
+            (*numOfApts)--; // updates the current amount of apartments
         }
-        else curr = curr->prev;
+        else
+            curr = curr->prev;
     }
     if(flag == FALSE)
         puts("not found\n");
-
 }
 
 /* Main command - Add - creates new apartment and adding it to both lists */
-void addApt(char* line, List* lstByCode, List* lstByPrice)
+void addApt(char* line, List* lstByCode, List* lstByPrice, int* numOfApts)
 {
-    int currCode = 0;
+    int currCode = INITIAL;
     if(lstByCode->tail != NULL)
-        currCode = lstByCode->tail->apartment->code;
-    Apt *apt1 = getAptParameters(line, currCode);
-    if(lstByCode->head == NULL)
+        currCode = lstByCode->tail->apartment->code; // gets the latest apartment code from the list
+    Apt *apt1 = getAptParameters(line, currCode); // allocating new apartment
+    if(lstByCode->head == NULL) // decides where to add the new apartment
         AddToEmptyList(lstByCode, NULL, AllocateLNode(apt1), NULL);
     else
         AddToEndOfList(lstByCode, AllocateLNode(apt1), NULL, NULL);
-    AddToListByPrice(lstByPrice, apt1); // adding the apartment to the list sorted by price
+    AddToListByPrice(lstByPrice, apt1); // adds also to the list sorted by price
+    (*numOfApts)++; // updates the current amount of apartments
 }
 
 /* Main command - Buy - buying apt according to given values*/
-void buyApt(char* line, List* lstByCode, List* lstByPrice)
+void buyApt(char* line, List* lstByCode, List* lstByPrice, int* numOfApts)
 {
-    int code = atoi(line+8);
+    int code = atoi(line+8); // gets the apartment code from the line
     DeleteFromList(lstByCode, lstByPrice, code);
+    (*numOfApts)--; // updates the current amount of apartments
 }
 
 /* Main command - Exit - update both database files,then exit the program */
-void exitProg(CList *history,char** shortHistory,List* lstByCode,List* lstByPrice)
+void exitProg(CList *history,char** shortHistory,List* lstByCode,List* lstByPrice, int* numOfApts)
 {
-    WriteHistoryToFile(history,shortHistory);                                         /* writing history to txt file */
-    WriteDatabaseToBinFile(lstByCode);                                                /* writing apartments DB to Bin file */
+    WriteHistoryToFile(history,shortHistory); /* writing history to txt file */
+    WriteDatabaseToBinFile(lstByCode, numOfApts); /* writing apartments DB to Bin file */
     ClearDB(history, shortHistory,lstByCode,lstByPrice);
     printf("Good Bye!\n");
 }
@@ -210,7 +131,8 @@ static BOOL isEarlier(Sint apt_year,Sint apt_month ,Sint apt_day, Find_keys* key
         {
             if(apt_day <= keys->day)         /* in case of earlier day and equal year and month */
                 return TRUE;
-            else return FALSE;
+            else
+                return FALSE;
         }
     }
 }
@@ -218,18 +140,19 @@ static BOOL isEarlier(Sint apt_year,Sint apt_month ,Sint apt_day, Find_keys* key
 /* returns TRUE if apartment is match to "FIND" keys search */
 static BOOL checkAptMatch(Apt* apt, Find_keys* keys)
 {
-    if( (apt->price >= keys->minP) && (apt->price <= keys->maxP) ) {                    /* check price */
-        if( (apt->num_of_rooms >= keys->minR) && (apt->num_of_rooms <= keys->maxR) )   /* check room number */
+    if( (apt->price >= keys->minP) && (apt->price <= keys->maxP) )
+    {                    /* check price */
+        if( (apt->num_of_rooms >= keys->minR) && (apt->num_of_rooms <= keys->maxR) ) /* check room number */
         {
             if(keys->year != INITIAL)
             {
-                if (isEarlier(apt->year,apt->month,apt->day,keys) == TRUE )              /* check Enter to Apt date */
-                    if(InTimeRange(apt,keys->lastXdays_enter) == TRUE)                   /* check Database Entry date */
+                if (isEarlier(apt->year,apt->month,apt->day,keys) == TRUE ) /* check Enter to Apt date */
+                    if(InTimeRange(apt,keys->lastXdays_enter) == TRUE) /* check Database Entry date */
                         return TRUE;
             }
             else
             {
-                if ( InTimeRange(apt,keys->lastXdays_enter) == TRUE)                      /* check Database Entry date*/
+                if ( InTimeRange(apt,keys->lastXdays_enter) == TRUE) /* check Database Entry date*/
                     return TRUE;
             }
         }
@@ -240,7 +163,7 @@ static BOOL checkAptMatch(Apt* apt, Find_keys* keys)
 /* returns TRUE if apartment's EntryToDB date is in the given range */
 static BOOL InTimeRange(Apt* apt,int days_ago)
 {
-    if(days_ago == 0 )
+    if(days_ago == INITIAL )
         return TRUE;
     time_t current;
     int seconds_in_day,Total_days;
@@ -261,15 +184,15 @@ static BOOL InTimeRange(Apt* apt,int days_ago)
 static void collectDate(const char* date_str,Find_keys* keys)
 {
     char temp[N];
-    int i = 0 ;
-    temp[0] = date_str[i++];
+    int i = INITIAL ;
+    temp[INITIAL] = date_str[i++];
     temp[1] = date_str[i++];
     keys->day = atoi(temp) ;
-    temp[0] = date_str[i++];
+    temp[INITIAL] = date_str[i++];
     temp[1] = date_str[i++];
     keys->month = atoi(temp);
     i += 2;
-    temp[0] = date_str[i++];
+    temp[INITIAL] = date_str[i++];
     temp[1] = date_str[i];
     keys->year = atoi(temp);
 }
@@ -291,56 +214,54 @@ static void collectKeysSearch(char* line,Find_keys *keys)
     token = strtok(temp,delim);
     while(token)
     {
-        if(strcmp(token,findByCommands[0]) == 0){            /* find by MinNumRooms */
+        if(strcmp(token,findByCommands[INITIAL]) == INITIAL){            /* find by MinNumRooms */
             token = strtok(NULL,delim);
             keys->minR  = atoi(token);
         }
-        else if(strcmp(token,findByCommands[1]) == 0){        /* find by MaxNumRooms */
+        else if(strcmp(token,findByCommands[1]) == INITIAL){        /* find by MaxNumRooms */
             token = strtok(NULL,delim);
             keys->maxR = atoi(token);
         }
-        else if(strcmp(token,findByCommands[2]) == 0){        /* find by MaxPrice */
+        else if(strcmp(token,findByCommands[2]) == INITIAL){        /* find by MaxPrice */
             token = strtok(NULL,delim);
             keys->maxP = atoi(token);
         }
-        else if(strcmp(token,findByCommands[3]) == 0){        /* find by MinPrice */
+        else if(strcmp(token,findByCommands[3]) == INITIAL){        /* find by MinPrice */
             token = strtok(NULL,delim);
             keys->minP = atoi(token);
         }
-        else if(strcmp(token,findByCommands[4]) == 0){        /* find by Entry date in to apartment  */
+        else if(strcmp(token,findByCommands[4]) == INITIAL){        /* find by Entry date in to apartment  */
             token = strtok(NULL,delim);
             collectDate(token,keys);
         }
-        else if(strcmp(token,findByCommands[5]) == 0){        /* find by database entry date */
+        else if(strcmp(token,findByCommands[5]) == INITIAL){        /* find by database entry date */
             token = strtok(NULL,delim);
             keys->lastXdays_enter = atoi(token);
         }
-        else if(strcmp(token,findByCommands[6]) == 0){      /* find all apartments - low to high*/
+        else if(strcmp(token,findByCommands[6]) == INITIAL)      /* find all apartments - low to high*/
             keys->order = INCREASE ;
-        }
-        else if(strcmp(token,findByCommands[7]) == 0){      /* find all apartments - high to low*/
+        else if(strcmp(token,findByCommands[N]) == INITIAL)      /* find all apartments - high to low*/
             keys->order = DECREASE ;
-        }
         token = strtok(NULL,delim);
     }
     free(temp);
 }
 
 /* searching and print apartments by the searching key values */
-static void findAndPrint(List* price_lst,List* code_lst,Find_keys* keys)
+static void findAndPrint(List* price_lst,Find_keys* keys)
 {
     LNode* curr;
     if( keys->order == DECREASE )
     {
         for ( curr = price_lst->tail ; curr != NULL ; curr = curr->prev )
             if(checkAptMatch(curr->apartment, keys) == TRUE)
-                PrintData(curr->apartment);
+                PrintApt(curr->apartment);
     }
     else
     {
         for( curr = price_lst->head ; curr != NULL ; curr = curr->next )
             if ( checkAptMatch(curr->apartment,keys) == TRUE )
-                PrintData(curr->apartment);
+                PrintApt(curr->apartment);
     }
 }
 
@@ -349,4 +270,3 @@ static int collectDaysRange(char* line)
 {
     return atoi(line+18);
 }
-

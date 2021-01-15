@@ -72,35 +72,19 @@ typedef struct CListNode{      /* commands singly linked list nodes  */
 }CLnode;
 
 /* Functions Implementation */
+
 /* ====== Functions Declarations ======*/
 Apt *AllocateApt (Sint code, Sint len, Sint day, Sint month, Sint year, Sint num_of_rooms, int price, char* address, time_t EntryToDB);
 Apt* getAptParameters(char* line, int currCode);
 LNode *AllocateLNode(Apt *apt);
-void InitializeList(List* list);
 void AddToEmptyList (List *list,CList *Clist, LNode *node, CLnode *Cnode);
-void AddToBeginningOfList (List *list, LNode *node);
 void AddToEndOfList(List *list, LNode *node, CList *Clist, CLnode *Cnode);
-void AddToInnerPlaceInList (LNode *prev, LNode *node);
-LNode* FindPlaceToInsertByPrice(List *list, Apt* apt);
 void AddToListByPrice (List *list, Apt* apt);
-void DeleteFromInnerPlaceInList(LNode *prev, int flag);
-void DeallocateListNode(LNode *node);
-void DeleteFromBeginningOfList(List *list, int flag);
-void DeleteFromEndOfList(List *list, int flag);
 void DeleteFromList (List *list, List *listByPrice, int code);
-void DeleteFromPriceList(List *list, LNode *prev);
-LNode *FindPlaceToDeleteByCode(List *list, int code);
-void PrintData(Apt *apt);
-void ClearList(List *list);
-CLnode* AllocateCLnode(char* command);
-void InitializeClist(CList* Clst);
+void PrintApt(Apt *apt);
 void AddToCList(CList *list, char* command);
-void ClearCList(CList *list);
-void DeleteFromBeginningOfCList(CList *list);
-void DeallocateCListcell(CLnode *cell);
 void PrintCList(CList *list);
 void PrintShortHArray(char **array, CList *list);
-void ClearShortTermHistory(char *short_term_history[N]);
 void ClearDB(CList *history, char *short_term_history[N], List *lst, List *lstPrice);
 void* check_malloc (int num_of_bytes);
 void check_file (FILE *file);

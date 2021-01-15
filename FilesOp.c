@@ -1,5 +1,5 @@
 #include "main_commands.h"
-static int last_cmd = 0 ;           /* represent the last command that has been received from txt file */
+static int last_cmd = INITIAL ; /* represent the last command that has been received from txt file */
 
 /* ==================================== Static Functions Declarations ====================================*/
 
@@ -12,8 +12,6 @@ static void CollectYear(BYTE* res, BYTE* currByte,Sint year);
 static void CollectDay(BYTE* res, BYTE* currByte,Sint day);
 static BOOL isBitISet(BYTE ch, int i);
 static void setBit(BYTE* currByte,int i);
-static int getSize(List *lst);
-static char* get_line(FILE* f);
 static void getRoomsAndDate(FILE* f,Sint* num_of_rooms,Sint* year,Sint*month,Sint* day);
 static void WriteCmdArrToFile(FILE* f,char* shortHistory[],int start_ind);
 static void WriteCListToFile(FILE* f,CList *lst_history);
@@ -28,14 +26,14 @@ void WriteHistoryToFile(CList* lst_history, char* shortHistory[])
     check_file(f);
     if(lst_history->head == NULL )    /* if database B (Cmd LIST) is empty , write only database A (shortTerm) to file */
     {
-        if(last_cmd == 0)
+        if(last_cmd == INITIAL)
             WriteCmdArrToFile(f,shortHistory,1);
         else
             WriteCmdArrToFile(f,shortHistory,last_cmd+1);
     }
     else                            /* there is more than 7 commands, write the arr and the Clist */
     {
-        if(lst_history->tail->commandNum - last_cmd < 0 )   /* new cmd only in shortHistory */
+        if(lst_history->tail->commandNum - last_cmd < INITIAL )   /* new cmd only in shortHistory */
             WriteCmdArrToFile(f,shortHistory,last_cmd - lst_history->tail->commandNum + 1 );
         else
         {
@@ -52,7 +50,7 @@ void getHistoryFromFile(char* short_term_history[] ,CList* history)
 {
     int num,offset;
     long fsize;
-    char ch = 0;
+    char ch = INITIAL;
     char *temp = NULL;
     FILE *f = fopen("HistoryDoc.txt","r");
     if(!f)
@@ -62,10 +60,10 @@ void getHistoryFromFile(char* short_term_history[] ,CList* history)
         fclose(f);
         return;
     }
-    fseek(f,0,SEEK_END);
+    fseek(f,INITIAL,SEEK_END);
     fsize = ftell(f);
-    fseek(f,0,SEEK_SET);
-    if( fsize!=0 )
+    fseek(f,INITIAL,SEEK_SET);
+    if( fsize != INITIAL )
     {
         while( ch != EOF )
         {
@@ -82,14 +80,14 @@ void getHistoryFromFile(char* short_term_history[] ,CList* history)
 }
 
 /* writing apartments database to bin file  - DB_Binfile.bin */
-void WriteDatabaseToBinFile(List* lst)
+void WriteDatabaseToBinFile(List* lst, int* numOfApts)
 {
     LNode *curr ;
     FILE * f = fopen("DB_Binfile.bin","wb");
     check_file(f);
-    int num_of_apts = getSize(lst);
-    if(num_of_apts != 0)
-        fwrite(&num_of_apts, sizeof(int),1, f);
+
+    if(*numOfApts != INITIAL)
+        fwrite(numOfApts, sizeof(int),1, f);
     for( curr = lst->head ;  curr != NULL ; curr = curr->next )
         WriteAptToBinFile(f,curr);
 
@@ -97,9 +95,9 @@ void WriteDatabaseToBinFile(List* lst)
 }
 
 /* reading Bin file and updating lists according to file info */
-void ReadBinFile(char* fname, List* lstByCode, List* lstByPrice)
+void ReadBinFile(char* fname, List* lstByCode, List* lstByPrice, int* numOfApts)
 {
-    int num_of_apts, i = 0;
+    int i =  INITIAL;
     long fsize;
     FILE* f = fopen(fname, "rb");
     if(!f)
@@ -109,13 +107,13 @@ void ReadBinFile(char* fname, List* lstByCode, List* lstByPrice)
         fclose(f);
         return;
     }
-    fseek(f,0,SEEK_END);
+    fseek(f,INITIAL,SEEK_END);
     fsize = ftell(f);
-    fseek(f,0,SEEK_SET);
-    if(fsize != 0 )
+    fseek(f,INITIAL,SEEK_SET);
+    if(fsize != INITIAL )
     {
-        fread(&num_of_apts,sizeof(int),1,f);
-        while( i < num_of_apts )
+        fread(numOfApts,sizeof(int),1,f);
+        while( i < *numOfApts )
         {
             Apt* apt = ReadSingleAptBin(f);
             if(lstByCode->head == NULL)
@@ -129,33 +127,33 @@ void ReadBinFile(char* fname, List* lstByCode, List* lstByPrice)
     fclose(f);
 }
 
-
 /* ==================================== Static Functions Implementation ====================================*/
-
 
 /* collect num of rooms and date - 3 Bytes total */
 static BYTE* CollectRoomsAndDate(Apt* apt)
 {
     BYTE* res = (BYTE*)check_malloc(sizeof (BYTE)*3);
-    BYTE CurrByte = 0;
+    BYTE CurrByte = INITIAL;
     Sint numOfRooms = apt->num_of_rooms;
     CurrByte = ExtractRooms(numOfRooms);        /* Extract first 4 bits */
     ExtractDate(res,&CurrByte,apt);
+
     return res;
 }
 
 /* Extract apt's num of rooms ( bits -> actual val ) */
 static BYTE ExtractRooms(Sint numOfRooms)
 {
-    BYTE res = 0x0F & numOfRooms;;
+    BYTE res = 0x0F & numOfRooms;
     res <<= 4;
+
     return res;
 }
 
 /* Extract apt entry date   */
 static void ExtractDate(BYTE* res,BYTE* currByte,Apt* apt)
 {
-    CollectDay(res,currByte,apt->year);
+    CollectDay(res,currByte,apt->day);
     CollectMonth(currByte,apt->month);
     CollectYear(res,currByte,apt->year);
 }
@@ -163,10 +161,10 @@ static void ExtractDate(BYTE* res,BYTE* currByte,Apt* apt)
 /* collect apt entry day of date */
 static void CollectDay(BYTE* res, BYTE* currByte,Sint day)
 {
-    int wi = 7,ri = 0 ;                /* wi -bit location to write in currByte,  ri - bit location to read from day */
+    int wi = 7, ri = INITIAL ;                /* wi -bit location to write in currByte,  ri - bit location to read from day */
     *currByte |= (day >> 1) ;
     *res = *currByte ;
-    *currByte = 0 ;
+    *currByte = INITIAL ;
     if( isBitISet(day,ri) == TRUE )
         setBit(currByte,wi);
 }
@@ -175,11 +173,12 @@ static void CollectDay(BYTE* res, BYTE* currByte,Sint day)
 static void CollectMonth(BYTE* currByte,Sint month)
 {
     int ri = 3, wi = 6;     /* wi -bit location to write in currByte,  ri - bit location to read from month */
-    while(ri >= 0)
+    while(ri >= INITIAL)
     {
         if( isBitISet(month,ri) == TRUE )
             setBit(currByte,wi);
-        ri--; wi--;
+        ri--;
+        wi--;
     }
 }
 
@@ -188,14 +187,15 @@ static void CollectYear(BYTE* res,BYTE* currByte,Sint year)
 {
     int ri = 6 , wi = 2;        /* wi -bit location to write in currByte,  ri - bit location to read from year */
     BYTE MASK = 0x0F;
-    while(wi >= 0 )
+    while(wi >= INITIAL )
     {
         if( isBitISet(year,ri) == TRUE )
             setBit(currByte,wi);
-        wi--; ri--;
+        wi--;
+        ri--;
     }
     res[1] = *currByte;
-    *currByte = 0 ;
+    *currByte = INITIAL;
     MASK = year & MASK ;
     *currByte = MASK << 4 ;
     res[2] = *currByte;
@@ -212,31 +212,17 @@ static void setBit(BYTE* currByte,int i)
 static BOOL isBitISet(BYTE ch, int i)
 {
     BYTE mask = 1 << i;
-    if( (mask & ch) == 0)
+    if( (mask & ch) == INITIAL)
         return FALSE;
     else
         return TRUE;
 }
 
-/* returns how many apartments in DB at the moment*/
-static int getSize(List *lst)
-{
-    int i = 0 ;
-    LNode *curr = lst->head;
-    while(curr)
-    {
-        if( curr->apartment != NULL )
-            i++;
-        curr = curr->next ;
-    }
-    return i;
-}
-
 /* get line from txt file */
-static char* get_line(FILE* f)
+char* get_line(FILE* f)
 {
     char ch = ' ';
-    int l_size = 0, p_size = 2;
+    int l_size = INITIAL, p_size = 2;
     char* line = (char*)check_malloc(sizeof(char)*p_size);
     while( (ch = fgetc(f)) != '\n')
     {
@@ -254,6 +240,7 @@ static char* get_line(FILE* f)
     if(!line)
         exit(MEM_ALLOC_ERR);
     line[l_size] = '\0';
+
     return line;
 }
 
@@ -275,13 +262,14 @@ static Apt *ReadSingleAptBin(FILE *f)
     fread(&EntryToDB,sizeof(time_t),1,f);
     getRoomsAndDate(f,&num_of_rooms,&year,&month,&day);
     apt = AllocateApt(code, len, day, month, year, num_of_rooms, price, address, EntryToDB);
+
     return apt;
 }
 
 /* The function gets 3B array and collect apt's num_of_rooms and Entry date (bits -> actual_val) */
 static void getRoomsAndDate(FILE* f,Sint* num_of_rooms,Sint* year,Sint*month,Sint* day)
 {
-    int ri = 0 ;
+    int ri = INITIAL ;
     BYTE* BYTES = (BYTE*)check_malloc(sizeof(BYTE)*3);  /*{B1: nnnn dddd } {B2: dmmm myyy } {B3: yyyy 0000 } */
     BYTE currByte;
     fread(BYTES,sizeof(BYTE),3,f);
@@ -299,7 +287,6 @@ static void getRoomsAndDate(FILE* f,Sint* num_of_rooms,Sint* year,Sint*month,Sin
     *year = (0x07 & currByte) << 4 ;
     currByte = BYTES[ri] >> 4 ;
     *year |= currByte;
-
     free(BYTES);
 }
 
@@ -324,7 +311,7 @@ static void WriteCmdArrToFile(FILE* f,char* shortHistory[],int start_ind)
     int  i ;
     i = start_ind - 1 ;
     int curr_cmd_ind = last_cmd+1;
-    while( shortHistory[i] != NULL && i < 7 )
+    while( shortHistory[i] != NULL && i < N )
     {
         fprintf(f,"%d: %s\n",curr_cmd_ind,shortHistory[i]);
         curr_cmd_ind++;
